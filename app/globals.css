@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* <CHANGE> Updated to wedding photographer color palette */
+:root {
+  /* Base colors - warm milk palette */
+  --bg-base: #faf8f4;
+  --bg-alt: #f2eae0;
+  --bg-dark: #181818;
+
+  /* Text colors */
+  --text-main: #181818;
+  --text-muted: #5f5a52;
+
+  /* Accent colors */
+  --accent: #d4c5b2;
+  --border-subtle: #e0d5c8;
+
+  /* Standard design tokens */
+  --background: var(--bg-base);
+  --foreground: var(--text-main);
+  --card: var(--bg-base);
+  --card-foreground: var(--text-main);
+  --popover: var(--bg-base);
+  --popover-foreground: var(--text-main);
+  --primary: var(--accent);
+  --primary-foreground: var(--text-main);
+  --secondary: var(--bg-alt);
+  --secondary-foreground: var(--text-main);
+  --muted: var(--bg-alt);
+  --muted-foreground: var(--text-muted);
+  --accent-token: var(--accent);
+  --accent-foreground: var(--text-main);
+  --border: var(--border-subtle);
+  --input: var(--border-subtle);
+  --ring: var(--accent);
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  /* <CHANGE> Added display serif font for headings */
+  --font-display: "Playfair Display", "Georgia", serif;
+  --font-sans: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+
+  /* <CHANGE> Wedding color tokens */
+  --color-bg-base: var(--bg-base);
+  --color-bg-alt: var(--bg-alt);
+  --color-bg-dark: var(--bg-dark);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-token: var(--accent-token);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-bg-base text-text-main font-sans antialiased;
+  }
+
+  /* <CHANGE> Typography base styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display leading-tight;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+/* <CHANGE> Custom utility classes for editorial style */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
