@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.*
+
+# Next.js build output
+.next
+out
+dist
+.vercel
+
+# Production builds
+build
+
+# Testing
+coverage
+.nyc_output
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# Tooling caches
+.eslintcache
+.turbo
+
+# Editors
+.vscode
+.idea
+
+# OS artifacts
+.DS_Store
+Thumbs.db

@@ -1,3 +1,6 @@
+"use client"
+
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
 import { CustomButton } from "./custom-button"
@@ -9,7 +12,7 @@ interface PackageCardProps {
   price?: string
   highlighted?: boolean
   badge?: string
-  ctaText: string
+  ctaLabel: string
   className?: string
 }
 
@@ -20,14 +23,15 @@ export function PackageCard({
   price,
   highlighted = false,
   badge,
-  ctaText,
+  ctaLabel,
   className,
 }: PackageCardProps) {
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -6, scale: 1.01 }}
       className={cn(
-        "p-8 rounded-sm relative",
-        highlighted ? "bg-bg-alt border-2 border-accent" : "bg-white border border-border-subtle",
+        "p-8 rounded-sm relative transition-shadow",
+        highlighted ? "bg-bg-alt border-2 border-accent shadow-md" : "bg-white border border-border-subtle shadow-sm",
         className,
       )}
     >
@@ -46,7 +50,7 @@ export function PackageCard({
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
             <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-            <span className="text-sm">{feature}</span>
+            <span className="text-sm leading-relaxed">{feature}</span>
           </li>
         ))}
       </ul>
@@ -54,8 +58,8 @@ export function PackageCard({
       {price && <p className="text-text-muted text-sm mb-6">{price}</p>}
 
       <CustomButton variant={highlighted ? "primary" : "secondary"} className="w-full justify-center">
-        {ctaText}
+        {ctaLabel}
       </CustomButton>
-    </div>
+    </motion.div>
   )
 }

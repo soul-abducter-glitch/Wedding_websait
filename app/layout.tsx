@@ -1,10 +1,15 @@
 import type React from "react"
 
-import type { Metadata } from "next"
-import { Playfair_Display, Inter } from "next/font/google"
 import "./globals.css"
+import { Inter, Playfair_Display } from "next/font/google"
+import { NextIntlClientProvider } from "next-intl"
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server"
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+import { SiteHeader } from "@/components/layout/site-header"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { defaultLocale, locales, type AppLocale } from "@/i18n/config"
 
-// Updated fonts for editorial wedding style
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-display",
@@ -17,38 +22,58 @@ const inter = Inter({
   display: "swap",
 })
 
-export const metadata: Metadata = {
-  title: "Anna Petrova — Wedding Photographer",
-  description: "Natural wedding photography capturing real emotions",
-  generator: "v0.app",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
+type LayoutProps = {
+  children: React.ReactNode
+  params: Promise<{ locale?: string }>
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
+  const { locale: localeParam } = await params
+  const locale = (localeParam as AppLocale) ?? defaultLocale
+
+  if (!locales.includes(locale)) {
+    return {
+      title: "Wedding Photographer",
+      description: "Modern editorial wedding photography",
+    }
+  }
+
+  const t = await getTranslations({ locale, namespace: "meta" })
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      languages: {
+        ru: "/ru",
+        en: "/en",
+      },
+    },
+  }
+}
+
+export default async function RootLayout({ children, params }: LayoutProps) {
+  const { locale: localeParam } = await params
+  const locale = (localeParam as AppLocale) ?? defaultLocale
+
+  if (!locales.includes(locale)) {
+    notFound()
+  }
+
+  setRequestLocale(locale)
+  const messages = await getMessages()
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      {/* Added font variables to body className */}
-      <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`}>{children}</body>
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-bg-base text-text-main`}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1 mt-[72px] md:mt-[88px]">{children}</main>
+            <SiteFooter />
+          </div>
+        </NextIntlClientProvider>
+      </body>
     </html>
   )
 }
