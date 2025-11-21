@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { useTranslations } from "next-intl"
 import { Container } from "@/components/ui/container"
 

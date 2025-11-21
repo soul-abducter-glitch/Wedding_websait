@@ -1,5 +1,5 @@
 import Image from "next/image"
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { Container } from "@/components/ui/container"
 import { Section } from "@/components/ui/section"
 import { Heading } from "@/components/ui/heading"
@@ -10,6 +10,7 @@ import { notFound } from "next/navigation"
 import { StoryCard } from "@/components/ui/story-card"
 import type { Story } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
+import { LightboxGallery } from "@/components/ui/lightbox-gallery"
 import { buildAlternateLinks } from "@/lib/seo"
 import ru from "@/i18n/messages/ru"
 
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!story) return {}
 
   return {
-    title: `${story.coupleNames} — ${story.location}`,
+    title: `${story.coupleNames} - ${story.location}`,
     description: story.shortDescription,
     alternates: buildAlternateLinks(`/portfolio/${slug}`),
   }
@@ -58,7 +59,7 @@ export default async function StoryPage({ params }: PageProps) {
           <div className="text-white space-y-3">
             <Eyebrow className="text-white/80">
               {story!.location}
-              {story!.country ? `, ${story!.country}` : ""} · {story!.date}
+              {story!.country ? `, ${story!.country}` : ""} - {story!.date}
             </Eyebrow>
             <Heading level={1} className="text-white text-balance">
               {story!.coupleNames}
@@ -75,13 +76,7 @@ export default async function StoryPage({ params }: PageProps) {
             <p className="text-text-muted text-lg leading-relaxed">{story!.description}</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {story!.gallery.map((image, index) => (
-              <AnimatedSection key={image} delay={index * 0.04} className="relative aspect-[4/5] overflow-hidden rounded-sm">
-                <Image src={image} alt={`${story!.coupleNames} ${index + 1}`} fill className="object-cover" />
-              </AnimatedSection>
-            ))}
-          </div>
+          <LightboxGallery images={story!.gallery} coupleName={story!.coupleNames} />
         </Container>
       </Section>
 

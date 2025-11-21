@@ -1,4 +1,4 @@
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { Container } from "@/components/ui/container"
 import { Section } from "@/components/ui/section"
 import { Eyebrow } from "@/components/ui/eyebrow"

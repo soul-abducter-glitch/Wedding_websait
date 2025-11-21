@@ -23,15 +23,8 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "next-intl/client": [
-        "lib/next-intl/client"
-      ],
-      "next-intl/link": [
-        "lib/next-intl/link"
-      ]
+      "@/*": ["./*"],
+      "next-intl/client": ["./lib/next-intl/client"]
     }
   },
   "include": [

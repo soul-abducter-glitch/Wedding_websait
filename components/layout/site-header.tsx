@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { useTranslations } from "next-intl"
 import { Menu, X } from "lucide-react"
 import { Container } from "@/components/ui/container"

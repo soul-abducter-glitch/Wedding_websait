@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { useRef } from "react"
 import { Eyebrow } from "@/components/ui/eyebrow"
 import { Heading } from "@/components/ui/heading"

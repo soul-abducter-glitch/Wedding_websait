@@ -1,4 +1,4 @@
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import Image from "next/image"
 import { Container } from "@/components/ui/container"
 import { Section } from "@/components/ui/section"

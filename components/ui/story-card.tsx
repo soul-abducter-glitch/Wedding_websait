@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { Story } from "@/types/content"

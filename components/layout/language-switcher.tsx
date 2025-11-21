@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useLocale } from "next-intl/client"
-import Link from "next-intl/link"
-import { usePathname } from "next/navigation"
-import { locales } from "@/i18n/config"
-import { cn } from "@/lib/utils"
+import { useLocale } from "next-intl/client";
+
+import { locales } from "@/i18n/config";
+import { Link, usePathname } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
-  const locale = useLocale()
-  const pathname = usePathname() || "/"
+  const locale = useLocale();
+  const pathname = usePathname() || "/";
 
-  // Убираем префикс локали из текущего пути, чтобы при переключении не получалось /en/ru/...
-  const pathWithoutLocale = pathname.replace(/^\/(ru|en)(?=\/|$)/, "") || "/"
+  // remove current locale prefix so we can switch to another locale on same path
+  const pathWithoutLocale = pathname.replace(/^\/(ru|en)(?=\/|$)/, "") || "/";
 
   return (
     <div className="flex items-center gap-2 text-xs font-medium tracking-wide">
@@ -31,5 +31,5 @@ export function LanguageSwitcher() {
         </div>
       ))}
     </div>
-  )
+  );
 }

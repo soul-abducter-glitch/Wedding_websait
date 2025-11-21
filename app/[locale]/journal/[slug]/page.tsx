@@ -1,5 +1,5 @@
 import Image from "next/image"
-import Link from "next-intl/link"
+import { Link } from "@/lib/navigation"
 import { Container } from "@/components/ui/container"
 import { Eyebrow } from "@/components/ui/eyebrow"
 import { Heading } from "@/components/ui/heading"
