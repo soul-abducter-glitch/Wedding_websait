@@ -23,7 +23,7 @@ export function CustomButton({
   const variants = {
     primary: "bg-accent text-text-main hover:bg-accent/80 shadow-sm hover:shadow-md",
     secondary:
-      "bg-transparent border border-white/80 text-white hover:bg-white hover:text-text-main hover:border-white",
+      "bg-transparent border border-black text-black hover:bg-black hover:text-white hover:border-black",
   }
 
   return (

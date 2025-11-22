@@ -91,7 +91,7 @@ export default async function AboutPage({ params }: PageProps) {
             <LeadText className="text-text-muted">{t("about.coffeeCtaText")}</LeadText>
             <Link
               href="/contact"
-              className="inline-block bg-text-main text-white px-8 py-3 text-sm tracking-wide hover:bg-text-muted transition-colors rounded-full"
+              className="inline-flex items-center justify-center border-2 border-black bg-black text-white px-8 py-3 text-sm font-semibold tracking-wide rounded-full transition-colors shadow-md hover:bg-neutral-800 hover:border-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/70 focus-visible:ring-offset-white"
             >
               {t("about.coffeeCtaButton")}
             </Link>

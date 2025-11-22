@@ -30,7 +30,7 @@ export function PackageCard({
     <motion.div
       whileHover={{ y: -6, scale: 1.01 }}
       className={cn(
-        "p-8 rounded-sm relative transition-shadow",
+        "relative flex h-full flex-col p-8 rounded-sm transition-shadow",
         highlighted ? "bg-bg-alt border-2 border-accent shadow-md" : "bg-white border border-border-subtle shadow-sm",
         className,
       )}
@@ -43,21 +43,23 @@ export function PackageCard({
         </div>
       )}
 
-      <h3 className="font-display text-2xl mb-3">{title}</h3>
-      {description && <p className="text-text-muted mb-6">{description}</p>}
+      <div className="flex-1 space-y-4">
+        <h3 className="font-display text-2xl">{title}</h3>
+        {description && <p className="text-text-muted">{description}</p>}
 
-      <ul className="space-y-3 mb-6">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-            <span className="text-sm leading-relaxed">{feature}</span>
-          </li>
-        ))}
-      </ul>
+        <ul className="space-y-3">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+              <span className="text-sm leading-relaxed">{feature}</span>
+            </li>
+          ))}
+        </ul>
 
-      {price && <p className="text-text-muted text-sm mb-6">{price}</p>}
+        {price && <p className="text-text-muted text-sm">{price}</p>}
+      </div>
 
-      <CustomButton variant={highlighted ? "primary" : "secondary"} className="w-full justify-center">
+      <CustomButton variant={highlighted ? "primary" : "secondary"} className="mt-6 w-full justify-center">
         {ctaLabel}
       </CustomButton>
     </motion.div>

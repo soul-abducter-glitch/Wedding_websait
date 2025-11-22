@@ -103,7 +103,12 @@ export function Hero({
               </CustomButton>
             </Link>
             <Link href={secondaryHref}>
-              <CustomButton variant="secondary">{secondaryCta}</CustomButton>
+              <CustomButton
+                variant="secondary"
+                className="border-white/80 text-white hover:border-white hover:bg-white/10 hover:text-white"
+              >
+                {secondaryCta}
+              </CustomButton>
             </Link>
           </motion.div>
         </div>
