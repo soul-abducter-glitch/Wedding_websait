@@ -39,7 +39,7 @@ export class PublicController {
   }
 
   @Get('journal')
-  async journal(@Query() query: LangQueryDto & PaginationDto) {
+  async journal(@Query() query: LangPaginationDto) {
     return this.publicService.getJournal(query.lang, {
       limit: query.limit,
       offset: query.offset,
