@@ -5,6 +5,7 @@ export interface Story {
   country?: string
   date: string
   preview: string
+  previewAlt?: string
   shortDescription: string
   featured?: boolean
   gallery: string[]
@@ -27,6 +28,7 @@ export interface Testimonial {
   coupleNames: string
   location: string
   quote: string
+  avatar?: string
 }
 
 export interface FaqItem {

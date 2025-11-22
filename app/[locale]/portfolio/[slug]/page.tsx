@@ -53,7 +53,13 @@ export default async function StoryPage({ params }: PageProps) {
   return (
     <div className="flex flex-col">
       <AnimatedSection as="section" className="relative h-[70vh] md:h-[80vh]">
-        <Image src={story!.preview} alt={story!.coupleNames} fill className="object-cover" priority />
+        <Image
+          src={story!.preview}
+          alt={story!.previewAlt ?? story!.coupleNames}
+          fill
+          className="object-cover"
+          priority
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/70 via-bg-dark/30 to-transparent" />
         <Container className="relative z-10 flex h-full items-end pb-12">
           <div className="text-white space-y-3">

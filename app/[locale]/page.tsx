@@ -51,6 +51,7 @@ export default async function HomePage({ params }: PageProps) {
         eyebrow={hero.eyebrow}
         heading={hero.heading}
         subheading={hero.subheading}
+        description={hero.description}
         stats={hero.stats}
         primaryCta={hero.primaryCta}
         secondaryCta={hero.secondaryCta}

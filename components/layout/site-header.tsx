@@ -20,9 +20,12 @@ export function SiteHeader() {
     <header className="fixed top-0 z-50 w-full border-b border-border-subtle bg-bg-base/90 backdrop-blur">
       <Container>
         <div className="flex h-16 md:h-20 items-center justify-between gap-4">
-          <Link href="/" className="font-display text-2xl text-text-main tracking-tight" onClick={() => setOpen(false)}>
-            {t("brand")}
-          </Link>
+          <div className="flex flex-col">
+            <Link href="/" className="font-display text-2xl text-text-main tracking-tight" onClick={() => setOpen(false)}>
+              {t("brand")}
+            </Link>
+            <span className="text-xs text-text-muted">{t("brandSubtitle")}</span>
+          </div>
 
           <nav className="hidden lg:flex items-center gap-8 text-sm">
             {navItems.map((item) => (

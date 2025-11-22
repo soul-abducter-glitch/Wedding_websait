@@ -8,6 +8,9 @@ import { useTranslations } from "next-intl"
 import { submitContactForm, type ContactFormData } from "@/lib/forms"
 import { cn } from "@/lib/utils"
 
+const CONTACT_METHODS = ["telegram", "whatsapp", "call"] as const
+type ContactMethod = (typeof CONTACT_METHODS)[number]
+
 const getSchema = (messages: Record<string, string>) =>
   z.object({
     name: z.string().min(1, messages.required),
@@ -16,6 +19,7 @@ const getSchema = (messages: Record<string, string>) =>
     date: z.string().min(3, messages.date),
     location: z.string().optional(),
     message: z.string().optional(),
+    preferredContact: z.enum(CONTACT_METHODS, { required_error: messages.preferredContact }),
   })
 
 type Status = "idle" | "submitting" | "success" | "error"
@@ -33,8 +37,12 @@ export function ContactForm() {
       date: "",
       location: "",
       message: "",
+      preferredContact: CONTACT_METHODS[0],
     },
   })
+
+  const contactOptions = t.raw("preferredContactOptions") as { value: ContactMethod; label: string }[]
+  const selectedContact = form.watch("preferredContact")
 
   const [status, setStatus] = useState<Status>("idle")
 
@@ -100,6 +108,33 @@ export function ContactForm() {
         placeholder={t("placeholders.message")}
         textarea
       />
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-text-main">{t("fields.preferredContact")}</p>
+        <div className="flex flex-wrap gap-2">
+          {contactOptions.map((option) => (
+            <label
+              key={option.value}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors focus-within:ring-1 focus-within:ring-accent",
+                selectedContact === option.value
+                  ? "border-text-main bg-bg-alt text-text-main"
+                  : "border-border-subtle text-text-muted hover:border-text-main",
+              )}
+            >
+              <input
+                type="radio"
+                value={option.value}
+                {...form.register("preferredContact")}
+                className="h-4 w-4 accent-accent"
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+        {form.formState.errors.preferredContact && (
+          <p className="text-xs text-red-700">{form.formState.errors.preferredContact.message}</p>
+        )}
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <button

@@ -5,6 +5,7 @@ export type ContactFormData = {
   date: string
   location: string
   message: string
+  preferredContact: string
 }
 
 /**

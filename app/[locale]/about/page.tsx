@@ -43,6 +43,7 @@ export default async function AboutPage({ params }: PageProps) {
               <Eyebrow className="mb-2">{t("about.eyebrow")}</Eyebrow>
               <Heading level={1}>{t("about.heading")}</Heading>
               <p className="text-text-muted leading-relaxed">{t("about.intro")}</p>
+              <p className="text-text-muted leading-relaxed">{t("about.introSecondary")}</p>
             </AnimatedSection>
           </div>
 

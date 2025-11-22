@@ -14,6 +14,7 @@ type HeroProps = {
   eyebrow: string
   heading: string
   subheading: string
+  description?: string
   stats: string
   primaryCta: string
   secondaryCta: string
@@ -27,6 +28,7 @@ export function Hero({
   eyebrow,
   heading,
   subheading,
+  description,
   stats,
   primaryCta,
   secondaryCta,
@@ -59,6 +61,16 @@ export function Hero({
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.16 }}>
             <LeadText className="text-white/90 text-pretty mb-2">{subheading}</LeadText>
           </motion.div>
+          {description && (
+            <motion.p
+              className="text-sm text-white/80 leading-relaxed max-w-3xl mb-2"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.24 }}
+            >
+              {description}
+            </motion.p>
+          )}
           <motion.p
             className="text-sm uppercase tracking-wider text-white/80"
             initial={{ opacity: 0 }}

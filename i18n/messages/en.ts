@@ -8,6 +8,7 @@ const stories: Story[] = [
     country: "Russia",
     date: "15 August 2024",
     preview: "/romantic-wedding-ceremony.jpg",
+    previewAlt: "Anna & Dmitry wedding in Saint Petersburg — ceremony in a mansion",
     shortDescription:
       "Classic ceremony in a riverside mansion. Soft palette, real emotion, and thoughtful details.",
     featured: true,
@@ -29,6 +30,7 @@ const stories: Story[] = [
     country: "Russia",
     date: "22 July 2024",
     preview: "/bride-and-groom-in-city.jpg",
+    previewAlt: "Maria & Alexander wedding in Moscow — city stroll",
     shortDescription:
       "Modern city wedding in downtown Moscow. Glass, light, architecture, and candid emotions.",
     featured: true,
@@ -48,6 +50,7 @@ const stories: Story[] = [
     country: "Italy",
     date: "5 September 2024",
     preview: "/destination-wedding-tuscany.jpg",
+    previewAlt: "Elena & Sergey wedding in Tuscany — vineyards, destination celebration",
     shortDescription:
       "Destination wedding among vineyards. Warm light, rolling hills, and a terrace dinner under the stars.",
     featured: true,
@@ -68,6 +71,7 @@ const stories: Story[] = [
     country: "Russia",
     date: "10 June 2024",
     preview: "/couple-in-nature.jpg",
+    previewAlt: "Victoria & Maxim wedding near Moscow — outdoor celebration",
     shortDescription: "Cozy day outdoors. Garden portraits, friends’ laughter, live music, and fireworks after dusk.",
     featured: false,
     gallery: [
@@ -84,17 +88,20 @@ const stories: Story[] = [
 const testimonials: Testimonial[] = [
   {
     coupleNames: "Maria & Alex",
-    location: "Moscow",
+    location: "Wedding in Moscow",
+    avatar: "/placeholder-user.jpg",
     quote: "Anna caught every important moment. We relive the day each time we look at the gallery.",
   },
   {
     coupleNames: "Elena & Dmitry",
-    location: "Saint Petersburg",
+    location: "Wedding in Saint Petersburg",
+    avatar: "/placeholder-user.jpg",
     quote: "We were afraid of feeling stiff, but with Anna we forgot about the camera and stayed true to ourselves.",
   },
   {
     coupleNames: "Anna & Sergey",
-    location: "Tuscany, Italy",
+    location: "Wedding in Tuscany, Italy",
+    avatar: "/placeholder-user.jpg",
     quote: "Exactly the photographs we dreamed of: light, emotional, and attentive to detail. Thank you for our story!",
   },
 ]
@@ -350,6 +357,7 @@ const legalOfferSections: LegalSection[] = [
 
 const en = {
   brand: "Anna Petrova",
+  brandSubtitle: "Anna Petrova — wedding photographer in Moscow and beyond",
   meta: {
     title: "Anna Petrova — Wedding Photographer",
     description:
@@ -365,13 +373,12 @@ const en = {
       { href: "/reviews", label: "Reviews" },
       { href: "/journal", label: "Journal" },
       { href: "/faq", label: "FAQ" },
-      { href: "/contact", label: "Contact" },
     ],
     contactCta: "Get in touch",
   },
   footer: {
     tagline:
-      "Wedding photographer with a modern editorial feel. Warm, documentary imagery with careful attention to detail.",
+      "Wedding photographer Anna Petrova. Modern editorial style, warm light, living emotions and meticulous details — I photograph weddings in Moscow, Saint Petersburg, and beyond.",
     navigationTitle: "Navigation",
     contactTitle: "Contact",
     socialTitle: "Social",
@@ -392,14 +399,15 @@ const en = {
   },
   home: {
     hero: {
-      eyebrow: "Wedding photographer",
-      heading: "Wedding photography you’ll actually love seeing yourself in",
-      subheading:
-        "Honest emotions over stiff posing. Natural images where you recognise yourselves without the awkwardness.",
+      eyebrow: "Wedding photographer • modern editorial style",
+      heading: "Anna Petrova — wedding photographer in Moscow and beyond",
+      subheading: "Timeless aesthetics of your feelings. Photographs you will revisit for years to come.",
+      description:
+        "Living emotions instead of staged moments. Natural frames where you recognize your relaxed selves.",
       stats: "10+ years • 100+ weddings • Moscow & destinations",
       primaryCta: "Check the date",
       secondaryCta: "View portfolio",
-      imageAlt: "Wedding couple walking together",
+      imageAlt: "Wedding photographer Anna Petrova — couple on a walk, wedding shoot",
     },
     forWhom: {
       title: "Who my work is for",
@@ -412,19 +420,31 @@ const en = {
         "You need a photographer who is present and reliable",
       ],
       cons: [
-        "You expect only staged portraits",
-        "You want heavy retouch in glossy style",
-        "You don’t feel ready to trust your photographer",
+        "You imagine the wedding only in a staged, highly orchestrated style",
+        "You expect heavy retouching and a dramatic change in appearance",
+        "You want to control every pose and frame instead of trusting your photographer",
       ],
     },
     benefitsTitle: "What you get",
     benefits: [
-      { title: "Complete story", text: "From getting ready to the dance floor" },
-      { title: "Real emotion", text: "No stiff posing — just genuine feelings" },
-      { title: "Ready-to-share set", text: "For printing an album and posting with ease" },
-      { title: "Clear timelines", text: "You know exactly when the gallery arrives" },
+      {
+        title: "Complete story",
+        text: "From getting ready to the dance floor — all key moments in one visual story",
+      },
+      {
+        title: "Real emotion",
+        text: "No wooden posing — just genuine feelings and natural movement",
+      },
+      {
+        title: "Ready-to-share set",
+        text: "Photos ready for album printing and social sharing without extra editing",
+      },
+      {
+        title: "Clear timelines",
+        text: "Agreed timelines and a clear deadline for when your images arrive",
+      },
     ],
-    featuredTitle: "Wedding stories",
+    featuredTitle: "Stories of my couples",
     aboutSnippet: {
       eyebrow: "About me",
       heading: "I photograph weddings so you recognise yourselves",
@@ -443,7 +463,7 @@ const en = {
     testimonialsTitle: "Kind words",
     finalCta: {
       heading: "Ready to trust me with your wedding?",
-      text: "Check if your date is free and get a tailored quote",
+      text: "Write me to find out if your date, shooting format, and pricing are available.",
       button: "Check the date",
     },
   },
@@ -453,6 +473,7 @@ const en = {
     intro:
       "A selection of weddings in different formats: city ceremonies, intimate gatherings, and destination weekends. I keep the atmosphere and character of each couple.",
     viewAll: "View all stories",
+    viewStory: "View story",
     otherStories: "More stories",
     ctaHeading: "Shall we talk about your day?",
     ctaText: "Send me a note to discuss details and reserve your date.",
@@ -528,9 +549,11 @@ const en = {
   },
   about: {
     eyebrow: "About me",
-    heading: "Hi, I’m Anna",
+    heading: "I photograph weddings so you recognize yourself in the images",
     intro:
-      "Wedding photographer from Saint Petersburg with 10 years of experience. I shoot in Russia and abroad, love warm light and honest emotions.",
+      "My goal is to preserve the emotions of your day and your atmosphere. Without endless reshoots or pressure.",
+    introSecondary:
+      "Over 10+ years I have photographed 100+ weddings across Russia and abroad — from intimate dinners to large destination celebrations.",
     factsTitle: "A few facts",
     facts: [
       { label: "150+", value: "Weddings photographed" },
@@ -592,6 +615,7 @@ const en = {
         date: "Wedding date",
         location: "City / venue",
         message: "Plans & wishes",
+        preferredContact: "Preferred contact method",
       },
       placeholders: {
         name: "For example, Anna and Dmitry",
@@ -601,6 +625,11 @@ const en = {
         location: "City, venue or country",
         message: "What matters to you? Guests count? Portrait walk?",
       },
+      preferredContactOptions: [
+        { value: "telegram", label: "Telegram" },
+        { value: "whatsapp", label: "WhatsApp" },
+        { value: "call", label: "Call" },
+      ],
       cta: "Send request",
       sending: "Sending...",
       success: "Thank you! I’ll get back within one business day.",
@@ -610,6 +639,7 @@ const en = {
         email: "Please enter a valid email",
         phone: "Please add your phone number",
         date: "Please add the date",
+        preferredContact: "Please choose a preferred contact channel",
       },
     },
   },

@@ -38,7 +38,7 @@ export default async function ReviewsPage({ params }: PageProps) {
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((item, index) => (
-            <AnimatedSection key={item.coupleNames} delay={index * 0.08}>
+            <AnimatedSection key={item.coupleNames} delay={index * 0.08} className="h-full">
               <TestimonialCard quote={item.quote} coupleNames={item.coupleNames} location={item.location} />
             </AnimatedSection>
           ))}
