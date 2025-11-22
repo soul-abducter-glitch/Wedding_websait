@@ -38,11 +38,12 @@ export function StoryCard({ story, className }: StoryCardProps) {
           </div>
         </div>
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-widest text-text-muted mb-2">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
             {story.location}
-            {story.country ? `, ${story.country}` : ""} · {story.date}
+            {story.country ? `, ${story.country}` : ""}
           </p>
-          <h3 className="font-display text-2xl text-text-main group-hover:text-text-muted transition-colors">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">{story.date}</p>
+          <h3 className="font-display text-3xl text-text-main group-hover:text-text-muted transition-colors">
             {story.coupleNames}
           </h3>
           <p className="text-sm text-text-muted mt-2 leading-relaxed">{story.shortDescription}</p>

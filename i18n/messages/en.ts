@@ -357,7 +357,6 @@ const legalOfferSections: LegalSection[] = [
 
 const en = {
   brand: "Anna Petrova",
-  brandSubtitle: "Anna Petrova — wedding photographer in Moscow and beyond",
   meta: {
     title: "Anna Petrova — Wedding Photographer",
     description:
@@ -400,8 +399,8 @@ const en = {
   home: {
     hero: {
       eyebrow: "Wedding photographer • modern editorial style",
-      heading: "Anna Petrova — wedding photographer in Moscow and beyond",
-      subheading: "Timeless aesthetics of your feelings. Photographs you will revisit for years to come.",
+      heading: "Timeless aesthetics of your feelings. Wedding photography as a legacy.",
+      subheading: "Photographs you will revisit for years to come.",
       description:
         "Living emotions instead of staged moments. Natural frames where you recognize your relaxed selves.",
       stats: "10+ years • 100+ weddings • Moscow & destinations",
@@ -417,7 +416,7 @@ const en = {
         "You want to be yourselves, not play a role",
         "You value real emotion over perfect poses",
         "You appreciate natural, honest imagery",
-        "You need a photographer who is present and reliable",
+        "You value reliability, high service, and calm",
       ],
       cons: [
         "You imagine the wedding only in a staged, highly orchestrated style",

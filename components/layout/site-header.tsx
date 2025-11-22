@@ -17,22 +17,19 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-border-subtle bg-bg-base/90 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-bg-base/90 backdrop-blur transition-shadow shadow-sm">
       <Container>
-        <div className="flex h-16 md:h-20 items-center justify-between gap-4">
-          <div className="flex flex-col">
-            <Link href="/" className="font-display text-2xl text-text-main tracking-tight" onClick={() => setOpen(false)}>
-              {t("brand")}
-            </Link>
-            <span className="text-xs text-text-muted">{t("brandSubtitle")}</span>
-          </div>
+        <div className="flex h-[80px] items-center justify-between gap-4">
+          <Link href="/" className="font-display text-2xl text-text-main tracking-tight" onClick={() => setOpen(false)}>
+            {t("brand")}
+          </Link>
 
           <nav className="hidden lg:flex items-center gap-8 text-sm">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-text-muted hover:text-text-main transition-colors"
+                className="flex min-h-[44px] items-center whitespace-nowrap border-b border-transparent text-text-muted transition-colors hover:border-text-main hover:text-text-main"
               >
                 {item.label}
               </Link>
@@ -43,7 +40,7 @@ export function SiteHeader() {
             <LanguageSwitcher />
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-full border border-border-subtle px-4 py-2 text-sm tracking-wide transition-colors hover:bg-bg-alt"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-border-subtle px-4 py-2 text-sm tracking-wide transition-colors hover:bg-bg-alt"
             >
               {contactCta}
             </Link>
@@ -63,34 +60,36 @@ export function SiteHeader() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden border-t border-border-subtle bg-bg-base/95 backdrop-blur"
+            className="lg:hidden fixed inset-0 z-40 bg-bg-base/95 backdrop-blur"
           >
-            <Container>
-              <div className="py-4 flex flex-col gap-4">
-                <LanguageSwitcher />
-                <nav className="flex flex-col gap-2 text-base">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block rounded-sm px-2 py-2 text-text-muted hover:text-text-main hover:bg-bg-alt transition-colors"
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </nav>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center rounded-full border border-border-subtle px-4 py-2 text-sm tracking-wide transition-colors hover:bg-bg-alt"
-                  onClick={() => setOpen(false)}
-                >
-                  {contactCta}
-                </Link>
+            <Container className="h-full">
+              <div className="flex h-full flex-col pt-24">
+                <div className="px-4">
+                  <LanguageSwitcher />
+                  <nav className="mt-8 flex flex-col gap-4 text-base">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="block rounded-sm px-4 py-3 text-text-muted transition-colors hover:text-text-main hover:bg-bg-alt"
+                        onClick={() => setOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+                  <Link
+                    href="/contact"
+                    className="mt-8 inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-border-subtle px-4 py-3 text-sm tracking-wide transition-colors hover:bg-bg-alt"
+                    onClick={() => setOpen(false)}
+                  >
+                    {contactCta}
+                  </Link>
+                </div>
               </div>
             </Container>
           </motion.div>

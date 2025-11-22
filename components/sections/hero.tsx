@@ -42,28 +42,40 @@ export function Hero({
   const y = useTransform(scrollYProgress, [0, 1], [0, -30])
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section
+      ref={ref}
+      className="relative min-h-screen -mt-[80px] flex items-center justify-center overflow-hidden pt-[80px] pb-24"
+    >
       <motion.div className="absolute inset-0 z-0" style={{ y }}>
         <Image src={background} alt={alt} fill priority className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/60 via-bg-dark/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-transparent" />
       </motion.div>
 
-      <Container className="relative z-10 text-white">
-        <div className="max-w-3xl space-y-4">
+      <Container className="relative z-10 text-white px-5 md:px-0">
+        <div className="mx-auto flex max-w-3xl flex-col space-y-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-            <Eyebrow className="text-white/90">{eyebrow}</Eyebrow>
+            <Eyebrow className="text-white/80 font-medium text-[10px] tracking-normal uppercase">{eyebrow}</Eyebrow>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.08 }}>
-            <Heading level={1} className="text-white text-balance mb-2">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+          >
+            <Heading level={1} className="text-white text-balance text-3xl leading-tight mb-2">
               {heading}
             </Heading>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.16 }}>
-            <LeadText className="text-white/90 text-pretty mb-2">{subheading}</LeadText>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.16 }}
+          >
+            <LeadText className="text-white/90 text-pretty mb-2 text-sm sm:text-base">{subheading}</LeadText>
           </motion.div>
           {description && (
             <motion.p
-              className="text-sm text-white/80 leading-relaxed max-w-3xl mb-2"
+              className="text-sm sm:text-base text-white/80 leading-relaxed max-w-3xl mb-2"
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.24 }}
@@ -80,7 +92,7 @@ export function Hero({
             {stats}
           </motion.p>
           <motion.div
-            className="flex flex-col sm:flex-row gap-3 pt-2"
+            className="flex flex-col gap-4 pt-2 sm:flex-row sm:gap-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.32, ease: "easeOut" }}

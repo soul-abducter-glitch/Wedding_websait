@@ -97,7 +97,7 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
 
-      <Section background="alt">
+        <Section background="alt" className="pb-24 md:pb-28">
         <Container>
           <AnimatedSection className="text-center mb-12">
             <Heading level={2}>{t("home.benefitsTitle")}</Heading>

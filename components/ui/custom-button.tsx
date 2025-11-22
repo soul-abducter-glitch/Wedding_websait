@@ -30,7 +30,7 @@ export function CustomButton({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "rounded-full px-6 py-3 text-sm md:text-base font-medium transition-all duration-300 flex items-center gap-2",
+        "flex min-h-[44px] items-center gap-2 rounded-full px-6 py-3 text-sm md:text-base font-medium transition-all duration-300",
         variants[variant],
         className,
       )}
