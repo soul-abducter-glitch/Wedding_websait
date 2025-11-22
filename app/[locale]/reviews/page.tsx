@@ -8,6 +8,7 @@ import type { Metadata } from "next"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
 import { getReviews, type ApiReview } from "@/lib/api"
+import type { Testimonial } from "@/types/content"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
@@ -27,12 +28,23 @@ export default async function ReviewsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
+  const staticTestimonials = t.raw("testimonials") as Testimonial[]
 
   let testimonials: ApiReview[] = []
   try {
     testimonials = await getReviews(locale)
   } catch (error) {
-    console.error("Failed to load reviews", error)
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Reviews API unavailable, using static testimonials. Reason: ${reason}`)
+    testimonials = staticTestimonials.map((item, index) => ({
+      id: `static-${index}`,
+      coupleNames: item.coupleNames,
+      avatar: item.avatar ?? "/placeholder-user.jpg",
+      text: item.quote,
+      location: item.location,
+      relatedProjectId: null,
+      createdAt: new Date().toISOString(),
+    }))
   }
 
   return (

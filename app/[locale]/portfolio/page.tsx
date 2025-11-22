@@ -29,13 +29,16 @@ export default async function PortfolioPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
+  const fallbackStories = t.raw("stories") as Story[]
 
   let stories: Story[] = []
   try {
     const response = await getProjects(locale)
     stories = response.items.map((project) => mapProjectToStory(project, locale))
   } catch (error) {
-    console.error("Failed to load projects", error)
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Projects API unavailable, using static stories. Reason: ${reason}`)
+    stories = fallbackStories
   }
 
   return (

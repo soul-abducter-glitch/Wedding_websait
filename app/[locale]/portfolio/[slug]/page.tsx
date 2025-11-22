@@ -22,15 +22,32 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
+  const t = await getTranslations({ locale })
   try {
     const project = await getProject(slug, locale)
-    if (!project) return {}
+    if (!project) {
+      const fallback = (t.raw("stories") as Story[]).find((item) => item.slug === slug)
+      if (!fallback) return {}
+      return {
+        title: `${fallback.coupleNames} - ${fallback.location}`,
+        description: fallback.description,
+        alternates: buildAlternateLinks(`/portfolio/${slug}`),
+      }
+    }
     return {
       title: `${project.title} - ${project.location}`,
       description: project.description,
       alternates: buildAlternateLinks(`/portfolio/${slug}`),
     }
   } catch {
+    const fallback = (t.raw("stories") as Story[]).find((item) => item.slug === slug)
+    if (fallback) {
+      return {
+        title: `${fallback.coupleNames} - ${fallback.location}`,
+        description: fallback.description,
+        alternates: buildAlternateLinks(`/portfolio/${slug}`),
+      }
+    }
     return {}
   }
 }
@@ -39,30 +56,36 @@ export default async function StoryPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
+  const staticStories = t.raw("stories") as Story[]
 
   let project: ApiProject | null = null
   try {
     project = await getProject(slug, locale)
   } catch (error) {
-    console.error("Failed to load project", error)
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Failed to load project, falling back to static stories. Reason: ${reason}`)
   }
 
-  if (!project) {
-    notFound()
-  }
+  const story = project ? mapProjectToStory(project, locale) : staticStories.find((item) => item.slug === slug) ?? null
+
+  if (!story) notFound()
 
   let otherStories: Story[] = []
-  try {
-    const list = await getProjects(locale, { limit: 4, offset: 0 })
-    otherStories = list.items
-      .filter((p) => p.slug !== slug)
-      .slice(0, 2)
-      .map((p) => mapProjectToStory(p, locale))
-  } catch (error) {
-    console.error("Failed to load other stories", error)
+  if (project) {
+    try {
+      const list = await getProjects(locale, { limit: 4, offset: 0 })
+      otherStories = list.items
+        .filter((p) => p.slug !== slug)
+        .slice(0, 2)
+        .map((p) => mapProjectToStory(p, locale))
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error)
+      console.warn(`Failed to load other stories, using static data. Reason: ${reason}`)
+      otherStories = staticStories.filter((item) => item.slug !== slug).slice(0, 2)
+    }
+  } else {
+    otherStories = staticStories.filter((item) => item.slug !== slug).slice(0, 2)
   }
-
-  const story = mapProjectToStory(project, locale)
 
   return (
     <div className="flex flex-col">

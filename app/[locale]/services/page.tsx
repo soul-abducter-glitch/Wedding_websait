@@ -9,6 +9,7 @@ import type { Metadata } from "next"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
 import { getServices, type ApiService } from "@/lib/api"
+import type { Package } from "@/types/content"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
@@ -28,12 +29,21 @@ export default async function ServicesPage({ params }: PageProps) {
   const t = await getTranslations({ locale })
   const includes = t.raw("services.includes") as { title: string; text: string }[]
   const ctaLabel = t("services.contactCta")
+  const packages = t.raw("packages") as Package[]
 
   let services: ApiService[] = []
   try {
     services = await getServices(locale)
   } catch (error) {
-    console.error("Failed to load services", error)
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Services API unavailable, using static packages. Reason: ${reason}`)
+    services = packages.map((pkg) => ({
+      id: pkg.id,
+      title: pkg.name,
+      price: pkg.price,
+      features: pkg.features,
+      isPopular: Boolean(pkg.popular),
+    }))
   }
 
   return (
