@@ -187,7 +187,7 @@ const journalPosts: JournalPost[] = [
     slug: "how-to-choose-wedding-photographer",
     title: "How to choose a wedding photographer",
     excerpt: "Key criteria and the questions worth asking during the first call.",
-    image: "/photographer-portrait.png",
+    image: "/female-photographer.png",
     date: "15 January 2025",
     category: "Guides",
     relatedSlugs: ["wedding-day-timeline", "best-light-for-photos", "destination-wedding-guide"],

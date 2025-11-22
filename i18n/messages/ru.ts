@@ -192,7 +192,7 @@ const journalPosts: JournalPost[] = [
     slug: "how-to-choose-wedding-photographer",
     title: "Как выбрать свадебного фотографа",
     excerpt: "Главные критерии выбора фотографа и вопросы, которые стоит задать на первой встрече.",
-    image: "/photographer-portrait.png",
+    image: "/female-photographer.png",
     date: "15 января 2025",
     category: "Советы",
     relatedSlugs: ["wedding-day-timeline", "best-light-for-photos", "destination-wedding-guide"],

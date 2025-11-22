@@ -135,7 +135,7 @@ export default async function HomePage({ params }: PageProps) {
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
             <AnimatedSection>
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
-                <Image src="/photographer-portrait.png" alt="Anna Petrova" fill className="object-cover" />
+                <Image src="/female-photographer.png" alt="Женщина-фотограф с камерой" fill className="object-cover" />
               </div>
             </AnimatedSection>
             <AnimatedSection delay={0.12} className="space-y-4">

@@ -36,7 +36,12 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center mb-16">
             <AnimatedSection>
               <div className="relative aspect-[3/4]">
-                <Image src="/photographer-portrait.png" alt="Anna Petrova" fill className="object-cover rounded-sm" />
+                <Image
+                  src="/female-photographer.png"
+                  alt="Женщина-фотограф с камерой"
+                  fill
+                  className="object-cover rounded-sm"
+                />
               </div>
             </AnimatedSection>
             <AnimatedSection delay={0.08} className="space-y-4">
