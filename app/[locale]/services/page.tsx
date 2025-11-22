@@ -5,10 +5,10 @@ import { Eyebrow } from "@/components/ui/eyebrow"
 import { Heading } from "@/components/ui/heading"
 import { PackageCard } from "@/components/ui/package-card"
 import { getTranslations, setRequestLocale } from "next-intl/server"
-import type { Package } from "@/types/content"
 import type { Metadata } from "next"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
+import { getServices, type ApiService } from "@/lib/api"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
@@ -26,8 +26,15 @@ export default async function ServicesPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
-  const packages = t.raw("packages") as Package[]
   const includes = t.raw("services.includes") as { title: string; text: string }[]
+  const ctaLabel = t("services.contactCta")
+
+  let services: ApiService[] = []
+  try {
+    services = await getServices(locale)
+  } catch (error) {
+    console.error("Failed to load services", error)
+  }
 
   return (
     <div className="flex flex-col">
@@ -43,21 +50,25 @@ export default async function ServicesPage({ params }: PageProps) {
             </AnimatedSection>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
-            {packages.map((pkg, index) => (
-              <AnimatedSection key={pkg.id} delay={index * 0.05}>
-                <PackageCard
-                  title={pkg.name}
-                  description={pkg.description}
-                  features={pkg.features}
-                  price={pkg.price}
-                  highlighted={pkg.popular}
-                  badge={pkg.badge}
-                  ctaLabel={pkg.ctaLabel}
-                />
-              </AnimatedSection>
-            ))}
-          </div>
+          {services.length === 0 ? (
+            <p className="text-center text-text-muted">Пакеты пока не добавлены.</p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8 mb-20">
+              {services.map((pkg, index) => (
+                <AnimatedSection key={pkg.id} delay={index * 0.05}>
+                  <PackageCard
+                    title={pkg.title}
+                    description={pkg.features[0]}
+                    features={pkg.features}
+                    price={pkg.price}
+                    highlighted={pkg.isPopular}
+                    badge={pkg.isPopular ? "Popular" : undefined}
+                    ctaLabel={ctaLabel}
+                  />
+                </AnimatedSection>
+              ))}
+            </div>
+          )}
 
           <div className="max-w-4xl mx-auto text-center">
             <AnimatedSection className="mb-10">

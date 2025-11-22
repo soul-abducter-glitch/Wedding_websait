@@ -12,28 +12,26 @@ import type { Story } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { LightboxGallery } from "@/components/ui/lightbox-gallery"
 import { buildAlternateLinks } from "@/lib/seo"
-import ru from "@/i18n/messages/ru"
+import { getProject, getProjects, type ApiProject } from "@/lib/api"
+import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> }
 
-export function generateStaticParams() {
-  const baseStories = (ru.stories as Story[]).map((story) => story.slug)
-  const localesWithSlugs = baseStories.flatMap((slug) => [{ locale: "ru", slug }, { locale: "en", slug }])
-  return localesWithSlugs
-}
+export const revalidate = 120
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const t = await getTranslations({ locale })
-  const stories = t.raw("stories") as Story[]
-  const story = stories.find((item) => item.slug === slug)
-
-  if (!story) return {}
-
-  return {
-    title: `${story.coupleNames} - ${story.location}`,
-    description: story.shortDescription,
-    alternates: buildAlternateLinks(`/portfolio/${slug}`),
+  try {
+    const project = await getProject(slug, locale)
+    if (!project) return {}
+    return {
+      title: `${project.title} - ${project.location}`,
+      description: project.description,
+      alternates: buildAlternateLinks(`/portfolio/${slug}`),
+    }
+  } catch {
+    return {}
   }
 }
 
@@ -41,21 +39,37 @@ export default async function StoryPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
-  const stories = t.raw("stories") as Story[]
-  const story = stories.find((item) => item.slug === slug)
 
-  if (!story) {
+  let project: ApiProject | null = null
+  try {
+    project = await getProject(slug, locale)
+  } catch (error) {
+    console.error("Failed to load project", error)
+  }
+
+  if (!project) {
     notFound()
   }
 
-  const otherStories = stories.filter((item) => item.slug !== slug).slice(0, 2)
+  let otherStories: Story[] = []
+  try {
+    const list = await getProjects(locale, { limit: 4, offset: 0 })
+    otherStories = list.items
+      .filter((p) => p.slug !== slug)
+      .slice(0, 2)
+      .map((p) => mapProjectToStory(p, locale))
+  } catch (error) {
+    console.error("Failed to load other stories", error)
+  }
+
+  const story = mapProjectToStory(project, locale)
 
   return (
     <div className="flex flex-col">
       <AnimatedSection as="section" className="relative h-[70vh] md:h-[80vh]">
         <Image
-          src={story!.preview}
-          alt={story!.previewAlt ?? story!.coupleNames}
+          src={story.preview}
+          alt={story.previewAlt ?? story.coupleNames}
           fill
           className="object-cover"
           priority
@@ -64,13 +78,12 @@ export default async function StoryPage({ params }: PageProps) {
         <Container className="relative z-10 flex h-full items-end pb-12">
           <div className="text-white space-y-3">
             <Eyebrow className="text-white/80">
-              {story!.location}
-              {story!.country ? `, ${story!.country}` : ""} - {story!.date}
+              {story.location} - {story.date}
             </Eyebrow>
             <Heading level={1} className="text-white text-balance">
-              {story!.coupleNames}
+              {story.coupleNames}
             </Heading>
-            <p className="text-white/90 max-w-2xl leading-relaxed">{story!.shortDescription}</p>
+            {story.shortDescription && <p className="text-white/90 max-w-2xl leading-relaxed">{story.shortDescription}</p>}
           </div>
         </Container>
       </AnimatedSection>
@@ -78,11 +91,11 @@ export default async function StoryPage({ params }: PageProps) {
       <Section background="base">
         <Container>
           <div className="max-w-2xl mx-auto text-center space-y-4 mb-16">
-            <Heading level={2}>{story!.coupleNames}</Heading>
-            <p className="text-text-muted text-lg leading-relaxed">{story!.description}</p>
+            <Heading level={2}>{story.coupleNames}</Heading>
+            <p className="text-text-muted text-lg leading-relaxed">{story.description}</p>
           </div>
 
-          <LightboxGallery images={story!.gallery} coupleName={story!.coupleNames} />
+          <LightboxGallery images={story.gallery} coupleName={story.coupleNames} />
         </Container>
       </Section>
 
@@ -119,4 +132,21 @@ export default async function StoryPage({ params }: PageProps) {
       </Section>
     </div>
   )
+}
+
+function mapProjectToStory(project: ApiProject, locale: string): Story {
+  const preview = project.coverImage || project.gallery?.[0] || "/placeholder.jpg"
+  const short = project.description.length > 180 ? `${project.description.slice(0, 180)}…` : project.description
+  return {
+    slug: project.slug,
+    coupleNames: project.title,
+    location: project.location,
+    date: formatDisplayDate(project.date, locale),
+    preview,
+    gallery: project.gallery ?? [],
+    description: project.description,
+    shortDescription: short,
+    featured: project.isFeatured,
+    coverImage: project.coverImage,
+  }
 }

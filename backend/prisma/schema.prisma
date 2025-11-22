@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String   @unique
+  password_hash  String
+  created_at     DateTime @default(now())
+}
+
+model Project {
+  id              String    @id @default(uuid()) @db.Uuid
+  slug            String    @unique
+  cover_image     String
+  title_ru        String
+  title_en        String
+  location_ru     String
+  location_en     String
+  date            DateTime
+  description_ru  String    @db.Text
+  description_en  String    @db.Text
+  gallery         Json
+  is_featured     Boolean   @default(false)
+  sort_order      Int       @default(0)
+  created_at      DateTime  @default(now())
+  reviews         Review[]
+
+  @@index([is_featured, sort_order])
+  @@index([sort_order])
+}
+
+model Service {
+  id          String  @id @default(uuid()) @db.Uuid
+  title_ru    String
+  title_en    String
+  price_ru    String
+  price_en    String
+  features_ru Json
+  features_en Json
+  is_popular  Boolean @default(false)
+}
+
+model Review {
+  id                  String   @id @default(uuid()) @db.Uuid
+  couple_names        String
+  avatar              String
+  text_ru             String   @db.Text
+  text_en             String   @db.Text
+  location_ru         String
+  location_en         String
+  related_project_id  String?
+  related_project     Project? @relation(fields: [related_project_id], references: [id])
+  created_at          DateTime @default(now())
+
+  @@index([related_project_id])
+}
+
+model Journal {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  title_ru    String
+  title_en    String
+  content_ru  String   @db.Text
+  content_en  String   @db.Text
+  cover_image String
+  created_at  DateTime @default(now())
+
+  @@index([created_at])
+}
+
+model Lead {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  date       String
+  messenger  String
+  contact    String
+  details    String
+  created_at DateTime @default(now())
+}

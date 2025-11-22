@@ -6,18 +6,19 @@ export interface Story {
   date: string
   preview: string
   previewAlt?: string
-  shortDescription: string
+  shortDescription?: string
   featured?: boolean
   gallery: string[]
   description: string
+  coverImage?: string
 }
 
 export interface Package {
   id: string
   name: string
-  hours: string
+  hours?: string
   price: string
-  description: string
+  description?: string
   features: string[]
   popular?: boolean
   badge?: string

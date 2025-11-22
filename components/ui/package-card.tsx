@@ -7,12 +7,12 @@ import { CustomButton } from "./custom-button"
 
 interface PackageCardProps {
   title: string
-  description: string
+  description?: string
   features: string[]
   price?: string
   highlighted?: boolean
   badge?: string
-  ctaLabel: string
+  ctaLabel?: string
   className?: string
 }
 
@@ -23,7 +23,7 @@ export function PackageCard({
   price,
   highlighted = false,
   badge,
-  ctaLabel,
+  ctaLabel = "Choose",
   className,
 }: PackageCardProps) {
   return (
@@ -44,7 +44,7 @@ export function PackageCard({
       )}
 
       <h3 className="font-display text-2xl mb-3">{title}</h3>
-      <p className="text-text-muted mb-6">{description}</p>
+      {description && <p className="text-text-muted mb-6">{description}</p>}
 
       <ul className="space-y-3 mb-6">
         {features.map((feature, index) => (

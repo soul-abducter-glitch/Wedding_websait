@@ -14,6 +14,8 @@ type StoryCardProps = {
 
 export function StoryCard({ story, className }: StoryCardProps) {
   const t = useTranslations()
+  const preview = story.preview || story.coverImage || "/placeholder.jpg"
+  const description = story.shortDescription || story.description
   return (
     <motion.div whileHover={{ y: -6 }} className={cn("group cursor-pointer", className)}>
       <Link href={`/portfolio/${story.slug}`} className="block h-full">
@@ -24,7 +26,7 @@ export function StoryCard({ story, className }: StoryCardProps) {
               transition={{ duration: 0.45, ease: "easeOut" }}
             >
               <Image
-                src={story.preview}
+                src={preview}
                 alt={story.previewAlt ?? story.coupleNames}
                 fill
                 className="object-cover"
@@ -46,7 +48,7 @@ export function StoryCard({ story, className }: StoryCardProps) {
           <h3 className="font-display text-3xl text-text-main group-hover:text-text-muted transition-colors">
             {story.coupleNames}
           </h3>
-          <p className="text-sm text-text-muted mt-2 leading-relaxed">{story.shortDescription}</p>
+          {description && <p className="text-sm text-text-muted mt-2 leading-relaxed">{description}</p>}
         </div>
       </Link>
     </motion.div>

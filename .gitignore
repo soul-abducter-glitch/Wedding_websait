@@ -16,6 +16,9 @@ build
 coverage
 .nyc_output
 
+# Backend uploads
+backend/uploads
+
 # Environment variables
 .env
 .env.local

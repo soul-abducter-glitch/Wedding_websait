@@ -3,20 +3,15 @@ import { Section } from "@/components/ui/section"
 import { Eyebrow } from "@/components/ui/eyebrow"
 import { Heading } from "@/components/ui/heading"
 import { TestimonialCard } from "@/components/ui/testimonial-card"
-import { cache } from "react"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import type { Metadata } from "next"
-import type { Testimonial } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
+import { getReviews, type ApiReview } from "@/lib/api"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
 export const revalidate = 60
-
-const loadTranslations = cache(async (locale: string) => {
-  return await getTranslations({ locale })
-})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
@@ -31,8 +26,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ReviewsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
-  const t = await loadTranslations(locale)
-  const testimonials = t.raw("testimonials") as Testimonial[]
+  const t = await getTranslations({ locale })
+
+  let testimonials: ApiReview[] = []
+  try {
+    testimonials = await getReviews(locale)
+  } catch (error) {
+    console.error("Failed to load reviews", error)
+  }
 
   return (
     <Section background="base" className="pt-12 md:pt-20">
@@ -43,13 +44,22 @@ export default async function ReviewsPage({ params }: PageProps) {
           <p className="text-text-muted">{t("reviewsPage.intro")}</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((item, index) => (
-            <AnimatedSection key={item.coupleNames} delay={index * 0.08} className="h-full">
-              <TestimonialCard quote={item.quote} coupleNames={item.coupleNames} location={item.location} />
-            </AnimatedSection>
-          ))}
-        </div>
+        {testimonials.length === 0 ? (
+          <p className="text-center text-text-muted">Отзывы появятся скоро.</p>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((item, index) => (
+              <AnimatedSection key={item.coupleNames} delay={index * 0.08} className="h-full">
+                <TestimonialCard
+                  quote={item.text}
+                  coupleNames={item.coupleNames}
+                  location={item.location}
+                  avatar={item.avatar}
+                />
+              </AnimatedSection>
+            ))}
+          </div>
+        )}
       </Container>
     </Section>
   )

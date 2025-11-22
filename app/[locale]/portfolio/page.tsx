@@ -8,8 +8,12 @@ import type { Metadata } from "next"
 import type { Story } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
+import { getProjects, type ApiProject } from "@/lib/api"
+import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string }> }
+
+export const revalidate = 120
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
@@ -25,7 +29,14 @@ export default async function PortfolioPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
-  const stories = t.raw("stories") as Story[]
+
+  let stories: Story[] = []
+  try {
+    const response = await getProjects(locale)
+    stories = response.items.map((project) => mapProjectToStory(project, locale))
+  } catch (error) {
+    console.error("Failed to load projects", error)
+  }
 
   return (
     <Section background="base" className="pt-12 md:pt-20">
@@ -40,14 +51,35 @@ export default async function PortfolioPage({ params }: PageProps) {
           </AnimatedSection>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {stories.map((story, index) => (
-            <AnimatedSection key={story.slug} delay={index * 0.05}>
-              <StoryCard story={story} />
-            </AnimatedSection>
-          ))}
-        </div>
+        {stories.length === 0 ? (
+          <p className="text-center text-text-muted">Stories will appear soon.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            {stories.map((story, index) => (
+              <AnimatedSection key={story.slug} delay={index * 0.05}>
+                <StoryCard story={story} />
+              </AnimatedSection>
+            ))}
+          </div>
+        )}
       </Container>
     </Section>
   )
+}
+
+function mapProjectToStory(project: ApiProject, locale: string): Story {
+  const preview = project.coverImage || project.gallery?.[0] || "/placeholder.jpg"
+  const short = project.description.length > 180 ? `${project.description.slice(0, 180)}…` : project.description
+  return {
+    slug: project.slug,
+    coupleNames: project.title,
+    location: project.location,
+    date: formatDisplayDate(project.date, locale),
+    preview,
+    gallery: project.gallery ?? [],
+    description: project.description,
+    shortDescription: short,
+    featured: project.isFeatured,
+    coverImage: project.coverImage,
+  }
 }
