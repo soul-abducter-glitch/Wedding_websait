@@ -163,7 +163,7 @@ type FormFieldProps = {
 
 function FormField({ label, registration, placeholder, error, textarea, required, type = "text" }: FormFieldProps) {
   const baseClasses =
-    "w-full rounded-sm border border-border-subtle bg-white px-3 py-2 text-sm text-text-main placeholder:text-text-muted focus:border-text-main focus:ring-1 focus:ring-text-main outline-none transition"
+    "w-full rounded-sm border border-gray-300 bg-white px-3 py-3 text-sm text-text-main placeholder:text-text-muted focus:border-text-main focus:ring-1 focus:ring-text-main outline-none transition"
 
   return (
     <div className="space-y-2">

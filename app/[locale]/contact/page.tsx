@@ -52,33 +52,34 @@ export default async function ContactPage({ params }: PageProps) {
               </div>
             </AnimatedSection>
 
-            <AnimatedSection delay={0.08} className="space-y-8">
-              <div className="grid sm:grid-cols-2 gap-4">
-                {channels.map((channel) => (
-                  <div key={channel.label} className="border border-border-subtle p-4 bg-white">
-                    <p className="text-sm uppercase tracking-widest text-text-muted mb-1">{channel.label}</p>
-                    <a
-                      href={channel.href}
-                      className="font-medium text-text-main hover:text-text-muted transition-colors"
-                      target={channel.href.startsWith("http") ? "_blank" : undefined}
-                      rel={channel.href.startsWith("http") ? "noreferrer" : undefined}
-                    >
-                      {channel.value}
-                    </a>
-                    {channel.description && <p className="text-sm text-text-muted mt-1">{channel.description}</p>}
+            <AnimatedSection delay={0.08}>
+              <div className="space-y-8 rounded-sm border border-border-subtle bg-bg-alt p-8">
+                <div className="space-y-4">
+                  <Heading level={3} className="text-2xl">
+                    {t("contact.processTitle")}
+                  </Heading>
+                  <div className="space-y-4">
+                    {process.map((item) => (
+                      <div key={item.title} className="space-y-1">
+                        <p className="font-medium text-text-main">{item.title}</p>
+                        <p className="text-sm text-text-muted">{item.text}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-
-              <div className="bg-bg-alt p-6 space-y-3">
-                <Heading level={3} className="text-2xl">
-                  {t("contact.processTitle")}
-                </Heading>
+                </div>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {process.map((item) => (
-                    <div key={item.title} className="space-y-1">
-                      <p className="font-medium text-text-main">{item.title}</p>
-                      <p className="text-sm text-text-muted">{item.text}</p>
+                  {channels.map((channel) => (
+                    <div key={channel.label} className="border border-border-subtle bg-white p-4">
+                      <p className="text-sm uppercase tracking-widest text-text-muted mb-1">{channel.label}</p>
+                      <a
+                        href={channel.href}
+                        className="font-medium text-text-main hover:text-text-muted transition-colors"
+                        target={channel.href.startsWith("http") ? "_blank" : undefined}
+                        rel={channel.href.startsWith("http") ? "noreferrer" : undefined}
+                      >
+                        {channel.value}
+                      </a>
+                      {channel.description && <p className="text-sm text-text-muted mt-1">{channel.description}</p>}
                     </div>
                   ))}
                 </div>

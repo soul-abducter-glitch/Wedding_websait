@@ -109,7 +109,7 @@ const testimonials: Testimonial[] = [
 const packages: Package[] = [
   {
     id: "small-day",
-    name: "Short Day",
+    name: "Intimate Wedding",
     hours: "6 hours",
     price: "from 150 000 ₽",
     description: "For chamber ceremonies and registries with a small guest list.",
@@ -590,7 +590,7 @@ const en = {
   contact: {
     eyebrow: "Contact",
     heading: "Check your date & chat details",
-    intro: "Tell me about your celebration — I’ll reply within one business day with two coverage options.",
+    intro: "Tell me about your celebration — I'll reply within one business day with two coverage options.",
     channels: [
       { label: "Telegram", value: "@annapetrova", href: "https://t.me/yourhandle", description: "Fast response" },
       { label: "Email", value: "hello@annapetrova.photo", href: "mailto:hello@annapetrova.photo", description: "Detailed requests" },
@@ -620,7 +620,7 @@ const en = {
         name: "For example, Anna and Dmitry",
         email: "name@email.com",
         phone: "+44 0000 000 000",
-        date: "DD.MM.YYYY",
+        date: "Approximate date or season",
         location: "City, venue or country",
         message: "What matters to you? Guests count? Portrait walk?",
       },

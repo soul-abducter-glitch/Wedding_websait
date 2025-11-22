@@ -3,6 +3,7 @@ import { Section } from "@/components/ui/section"
 import { Eyebrow } from "@/components/ui/eyebrow"
 import { Heading } from "@/components/ui/heading"
 import { TestimonialCard } from "@/components/ui/testimonial-card"
+import { cache } from "react"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import type { Metadata } from "next"
 import type { Testimonial } from "@/types/content"
@@ -10,6 +11,12 @@ import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
 
 type PageProps = { params: Promise<{ locale: string }> }
+
+export const revalidate = 60
+
+const loadTranslations = cache(async (locale: string) => {
+  return await getTranslations({ locale })
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
@@ -24,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ReviewsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
-  const t = await getTranslations({ locale })
+  const t = await loadTranslations(locale)
   const testimonials = t.raw("testimonials") as Testimonial[]
 
   return (

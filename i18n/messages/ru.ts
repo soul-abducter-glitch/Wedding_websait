@@ -113,7 +113,7 @@ const testimonials: Testimonial[] = [
 const packages: Package[] = [
   {
     id: "small-day",
-    name: "Малый день",
+    name: "Камерная свадьба",
     hours: "6 часов",
     price: "от 150 000 ₽",
     description: "Для камерных церемоний и регистраций с узким кругом гостей.",
@@ -639,7 +639,7 @@ const ru = {
         name: "Например, Анна и Дмитрий",
         email: "name@email.com",
         phone: "+7 900 000 00 00",
-        date: "ДД.ММ.ГГГГ",
+        date: "Примерная дата или сезон",
         location: "Город, площадка или страна",
         message: "Что для вас важно? Сколько гостей? Планируете прогулку?",
       },

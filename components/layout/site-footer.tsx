@@ -16,7 +16,7 @@ export function SiteFooter() {
     <footer className="border-t border-border-subtle bg-bg-base py-16">
       <Container>
         <div className="grid gap-12 md:grid-cols-4 mb-12">
-          <div>
+          <div className="max-w-xs">
             <h3 className="font-display text-2xl mb-4">{t("brand")}</h3>
             <p className="text-sm text-text-muted leading-relaxed">{t("footer.tagline")}</p>
           </div>

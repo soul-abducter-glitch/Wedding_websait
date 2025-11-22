@@ -93,7 +93,7 @@ export default async function ExperiencePage({ params }: PageProps) {
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             {values.map((value, index) => (
-              <AnimatedSection key={value.title} delay={index * 0.05} className="p-6 border border-border-subtle bg-white">
+              <AnimatedSection key={value.title} delay={index * 0.05} className="p-10 border border-border-subtle bg-white">
                 <h3 className="font-display text-xl mb-2">{value.title}</h3>
                 <p className="text-text-muted leading-relaxed">{value.description}</p>
               </AnimatedSection>

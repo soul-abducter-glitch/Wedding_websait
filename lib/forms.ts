@@ -8,6 +8,7 @@ export type ContactFormData = {
   preferredContact: string
 }
 
+
 /**
  * Placeholder for backend integration.
  * Expected payload: ContactFormData with ISO-formatted date, normalized phone, and free-form message.
