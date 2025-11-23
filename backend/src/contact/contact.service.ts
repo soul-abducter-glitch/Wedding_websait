@@ -5,10 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 
 type ContactPayload = {
   name: string;
-  date: string;
-  messenger: string;
-  contact: string;
-  details: string;
+  email: string;
+  phone?: string;
+  weddingDate?: string;
+  location: string;
+  message: string;
+  source?: string;
 };
 
 @Injectable()
@@ -20,10 +22,39 @@ export class ContactService {
     private readonly configService: ConfigService,
   ) {}
 
-  async handleLead(body: ContactPayload) {
-    const lead = await this.prisma.lead.create({ data: body });
+  async handleLead(body: ContactPayload & { honeypot?: string }) {
+    if (body.honeypot) {
+      this.logger.warn('Honeypot field filled, ignoring submission.');
+      return { success: true };
+    }
+
+    const lead = await this.prisma.lead.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        weddingDate: body.weddingDate ? new Date(body.weddingDate) : undefined,
+        location: body.location,
+        message: body.message,
+        source: body.source ?? 'contact_form',
+      },
+    });
+
     await Promise.allSettled([this.sendTelegram(body), this.sendEmail(body)]);
-    return { status: 'ok', leadId: lead.id };
+    return { success: true, leadId: lead.id };
+  }
+
+  private formatLeadBody(body: ContactPayload) {
+    const fields = [
+      `Имя: ${body.name}`,
+      `Email: ${body.email}`,
+      `Телефон: ${body.phone ?? 'Не указан'}`,
+      `Свадебная дата: ${body.weddingDate ?? 'Не указана'}`,
+      `Локация: ${body.location}`,
+      `Источник: ${body.source ?? 'contact_form'}`,
+      `Сообщение: ${body.message}`,
+    ];
+    return fields.join('\n');
   }
 
   private async sendTelegram(body: ContactPayload) {
@@ -33,13 +64,8 @@ export class ContactService {
       this.logger.warn('Telegram env vars not set, skipping telegram notification.');
       return;
     }
-    const text = [
-      '🔥 Новая заявка с сайта!',
-      `Имена: ${body.name}`,
-      `Дата: ${body.date}`,
-      `Связь: ${body.messenger} (${body.contact})`,
-      `Сообщение: ${body.details}`,
-    ].join('\n');
+
+    const text = ['Новая заявка с сайта', this.formatLeadBody(body)].join('\n\n');
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     try {
       await fetch(url, {
@@ -73,13 +99,7 @@ export class ContactService {
     });
 
     const subject = 'Новая заявка с сайта';
-    const text = [
-      '🔥 Новая заявка с сайта!',
-      `Имена: ${body.name}`,
-      `Дата: ${body.date}`,
-      `Связь: ${body.messenger} (${body.contact})`,
-      `Сообщение: ${body.details}`,
-    ].join('\n');
+    const text = this.formatLeadBody(body);
 
     try {
       await transporter.sendMail({

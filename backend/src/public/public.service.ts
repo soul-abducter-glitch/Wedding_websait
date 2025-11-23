@@ -1,150 +1,172 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { Lang, pickLocalized, resolveLang } from '../common/lang.util';
+import { StorageService } from '../storage/storage.service';
+import { WeddingsQueryDto } from './dto/weddings-query.dto';
+import { PostsQueryDto } from './dto/posts-query.dto';
+
+type StoryWithImages = Prisma.WeddingStoryGetPayload<{
+  include: { images: { orderBy: { sortOrder: 'asc' } } };
+}>;
 
 @Injectable()
 export class PublicService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
-  async getHomepage(langInput?: string) {
-    const lang = resolveLang(langInput);
-    const featuredProjects = await this.prisma.project.findMany({
-      where: { is_featured: true },
-      orderBy: [{ sort_order: 'asc' }, { created_at: 'desc' }],
+  async getHomepage() {
+    const homepageContent = await this.prisma.homepageContent.findFirst({
+      orderBy: { updatedAt: 'desc' },
+    });
+    const featuredWeddings = await this.prisma.weddingStory.findMany({
+      where: { isFeatured: true },
+      orderBy: { updatedAt: 'desc' },
+      take: 3,
+      include: { images: { orderBy: { sortOrder: 'asc' } } },
+    });
+    const reviews = await this.prisma.review.findMany({
+      where: { isVisible: true },
+      orderBy: { createdAt: 'desc' },
       take: 3,
     });
-    const reviews = await this.prisma.review.findMany({
-      orderBy: { created_at: 'desc' },
-      take: 5,
-    });
+
     return {
-      featuredProjects: featuredProjects.map((p) => this.mapProject(p, lang)),
-      reviews: reviews.map((r) => this.mapReview(r, lang)),
-      author: {
-        name: 'Wedding photographer',
-        bio: 'Contact via form on the site.',
-      },
+      homepageContent,
+      featuredWeddings: featuredWeddings.map((story) => this.mapStoryListItem(story)),
+      reviews: reviews.map(this.mapReview),
     };
   }
 
-  async getProjects(langInput?: string, params?: { limit?: number; offset?: number }) {
-    const lang = resolveLang(langInput);
-    const take = params?.limit ?? 20;
-    const skip = params?.offset ?? 0;
+  async getWeddings(params: WeddingsQueryDto) {
+    const take = params.limit ?? 10;
+    const skip = params.offset ?? 0;
+    const where: Prisma.WeddingStoryWhereInput = {};
+    if (typeof params.featured === 'boolean') {
+      where.isFeatured = params.featured;
+    }
+
     const [items, total] = await Promise.all([
-      this.prisma.project.findMany({
-        orderBy: [{ sort_order: 'asc' }, { created_at: 'desc' }],
+      this.prisma.weddingStory.findMany({
+        where,
+        take,
+        skip,
+        orderBy: { updatedAt: 'desc' },
+      }),
+      this.prisma.weddingStory.count({ where }),
+    ]);
+
+    return {
+      total,
+      limit: take,
+      offset: skip,
+      items: items.map((story) => this.mapStoryListItem(story)),
+    };
+  }
+
+  async getWeddingBySlug(slug: string) {
+    const story = await this.prisma.weddingStory.findUnique({
+      where: { slug },
+      include: { images: { orderBy: { sortOrder: 'asc' } } },
+    });
+    if (!story) {
+      return null;
+    }
+    return this.mapStoryDetail(story);
+  }
+
+  async getReviews() {
+    const reviews = await this.prisma.review.findMany({
+      where: { isVisible: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return reviews.map(this.mapReview);
+  }
+
+  async getPosts(params: PostsQueryDto) {
+    const take = params.limit ?? 10;
+    const skip = params.offset ?? 0;
+    const [items, total] = await Promise.all([
+      this.prisma.blogPost.findMany({
+        where: { isPublished: true },
+        orderBy: { publishedAt: 'desc' },
         take,
         skip,
       }),
-      this.prisma.project.count(),
+      this.prisma.blogPost.count({ where: { isPublished: true } }),
     ]);
     return {
       total,
       limit: take,
       offset: skip,
-      items: items.map((p) => this.mapProject(p, lang)),
+      items: items.map(this.mapPost),
     };
   }
 
-  async getProjectBySlug(slug: string, langInput?: string) {
-    const lang = resolveLang(langInput);
-    const project = await this.prisma.project.findUnique({ where: { slug } });
-    if (!project) return null;
-    return this.mapProject(project, lang);
-  }
-
-  async getServices(langInput?: string) {
-    const lang = resolveLang(langInput);
-    const services = await this.prisma.service.findMany();
-    return services.map((s) => this.mapService(s, lang));
-  }
-
-  async getReviews(langInput?: string) {
-    const lang = resolveLang(langInput);
-    const reviews = await this.prisma.review.findMany({
-      orderBy: { created_at: 'desc' },
+  async getPostBySlug(slug: string) {
+    const post = await this.prisma.blogPost.findUnique({
+      where: { slug },
     });
-    return reviews.map((r) => this.mapReview(r, lang));
+    if (!post) return null;
+    return this.mapPost(post);
   }
 
-  async getJournal(langInput?: string, params?: { limit?: number; offset?: number }) {
-    const lang = resolveLang(langInput);
-    const take = params?.limit ?? 20;
-    const skip = params?.offset ?? 0;
-    const [items, total] = await Promise.all([
-      this.prisma.journal.findMany({
-        orderBy: { created_at: 'desc' },
-        take,
-        skip,
-      }),
-      this.prisma.journal.count(),
-    ]);
+  private mapStoryListItem(story: Prisma.WeddingStoryGetPayload<{}>) {
     return {
-      total,
-      limit: take,
-      offset: skip,
-      items: items.map((j) => this.mapJournal(j, lang)),
+      id: story.id,
+      slug: story.slug,
+      title: story.title,
+      location: story.location,
+      date: story.date,
+      shortDescription: story.shortDescription,
+      coverImageUrl: this.storage.getPublicUrl(story.coverImageUrl),
+      isFeatured: story.isFeatured,
     };
   }
 
-  async getJournalBySlug(slug: string, langInput?: string) {
-    const lang = resolveLang(langInput);
-    const article = await this.prisma.journal.findUnique({ where: { slug } });
-    if (!article) return null;
-    return this.mapJournal(article, lang);
-  }
-
-  private mapProject(project: Prisma.ProjectGetPayload<{}>, lang: Lang) {
-    const localized = pickLocalized(project, ['title', 'location', 'description'], lang);
+  private mapStoryDetail(story: StoryWithImages) {
     return {
-      id: project.id,
-      slug: project.slug,
-      coverImage: project.cover_image,
-      title: localized.title,
-      location: localized.location,
-      date: project.date,
-      description: localized.description,
-      gallery: project.gallery,
-      isFeatured: project.is_featured,
-      sortOrder: project.sort_order,
+      id: story.id,
+      slug: story.slug,
+      title: story.title,
+      location: story.location,
+      date: story.date,
+      shortDescription: story.shortDescription,
+      fullDescription: story.fullDescription,
+      coverImageUrl: this.storage.getPublicUrl(story.coverImageUrl),
+      isFeatured: story.isFeatured,
+      images: story.images.map((image) => ({
+        id: image.id,
+        imageUrl: this.storage.getPublicUrl(image.imageUrl),
+        alt: image.alt,
+        sortOrder: image.sortOrder,
+      })),
     };
   }
 
-  private mapService(service: Prisma.ServiceGetPayload<{}>, lang: Lang) {
-    const localized = pickLocalized(service, ['title', 'price', 'features'], lang);
-    return {
-      id: service.id,
-      title: localized.title,
-      price: localized.price,
-      features: localized.features,
-      isPopular: service.is_popular,
-    };
-  }
-
-  private mapReview(review: Prisma.ReviewGetPayload<{}>, lang: Lang) {
-    const localized = pickLocalized(review, ['text', 'location'], lang);
+  private mapReview(review: Prisma.ReviewGetPayload<{}>) {
     return {
       id: review.id,
-      coupleNames: review.couple_names,
-      avatar: review.avatar,
-      text: localized.text,
-      location: localized.location,
-      relatedProjectId: review.related_project_id,
-      createdAt: review.created_at,
+      names: review.names,
+      location: review.location,
+      text: review.text,
+      weddingStoryId: review.weddingStoryId,
+      createdAt: review.createdAt,
     };
   }
 
-  private mapJournal(journal: Prisma.JournalGetPayload<{}>, lang: Lang) {
-    const localized = pickLocalized(journal, ['title', 'content'], lang);
+  private mapPost(post: Prisma.BlogPostGetPayload<{}>) {
     return {
-      id: journal.id,
-      slug: journal.slug,
-      title: localized.title,
-      content: localized.content,
-      coverImage: journal.cover_image,
-      createdAt: journal.created_at,
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt,
+      coverImageUrl: post.coverImageUrl,
+      publishedAt: post.publishedAt,
+      seoTitle: post.seoTitle,
+      seoDescription: post.seoDescription,
+      content: post.content,
     };
   }
 }

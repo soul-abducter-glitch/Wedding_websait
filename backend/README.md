@@ -1,47 +1,79 @@
-# Wedding Backend (NestJS + Fastify + Prisma)
+# Wedding Backend (NestJS + Express + Prisma + AdminJS)
 
-Стек: NestJS 11 (Fastify), Prisma ORM, PostgreSQL, AdminJS, S3-хранилище (конвертация в WebP).
+Production-ready backend for the Wedding site uses a clean NestJS API, AdminJS for managing content, and Prisma/ PostgreSQL layers that stay independent of the frontend.
 
-## Быстрый старт (локально)
-1) Скопируйте `.env.example` в `.env` и подставьте значения (JWT, S3, SMTP, Telegram, ADMIN_*).  
-2) (Опционально) Поднимите Postgres: `docker compose up -d db` или используйте свой.  
-3) Установите зависимости: `npm install`.  
-4) Сгенерируйте Prisma client: `npm run prisma:generate`.  
-5) Создайте миграции (SQL уже в `prisma/migrations/000_init/migration.sql`): `npm run prisma:migrate` или примените SQL вручную.  
-6) Засидьте админа: `npm run prisma:seed` (берёт ADMIN_DEFAULT_EMAIL/PASSWORD).  
-7) Старт dev: `npm run start:dev` (по умолчанию http://localhost:4000/api/health, админка http://localhost:4000/admin).
+## Overview
 
-## Основные возможности
-- AdminJS на `/admin` с аутентификацией (email/password из таблицы users).
-- Публичные GET API с `?lang=ru|en`: `/api/homepage`, `/api/projects`, `/api/projects/:slug`, `/api/services`, `/api/reviews`, `/api/journal`, `/api/journal/:slug`.
-- Контактная форма: `POST /api/contact` сохраняет лид, шлёт Telegram и email.
-- Загрузка файлов: `POST /api/admin/uploads` (JWT) принимает multipart, грузит в S3 (или локально в `/uploads`), одновременно пишет WebP (quality 80).
-- Health checks: `/api/health`, `/api`.
+- **API**: Express-based NestJS with `/api/v1` prefix, validation, rate limiting, CORS, and structured public endpoints for stories, reviews, posts, homepage content, and form submissions.
+- **Admin**: AdminJS (v7+) mounted at `/admin` with Prisma resources, S3 upload features, role-aware authentication, and session cookies.
+- **Storage**: S3-first uploads with a local `/uploads` fallback; every story and gallery image stores a key that the API resolves into a URL.
+- **Notifications**: Contact form saves leads, sends Telegram/email notifications, and supports anti-spam (honeypot field).
 
-## Скрипты
-- `npm run start:dev` — dev-сервер с hot-reload.
-- `npm run build && npm run start:prod` — сборка и запуск prod.
-- `npm run prisma:generate` — генерировать Prisma client.
-- `npm run prisma:migrate` — применить миграции (dev) или использовать SQL из `prisma/migrations`.
-- `npm run prisma:studio` — Prisma Studio.
-- `npm run prisma:seed` — создать дефолтного админа по env.
-- `npm test` — юнит-тесты.
+## Getting started
 
-## Структура
-- `src/main.ts` — запуск Fastify, helmet/cors, multipart/static `/uploads`.
-- `src/prisma` — PrismaService (глобально), схема в `prisma/schema.prisma`.
-- `src/admin` — интеграция AdminJS с Prisma, логин через users.
-- `src/auth` — JWT login `POST /api/admin/auth/login`, guard для защищённых роутов.
-- `src/uploads` — загрузка файлов в S3/локально с конвертацией в WebP.
-- `src/public` — публичные GET-эндпоинты с локализацией.
-- `src/contact` — контактная форма, Telegram + SMTP отправка.
+```bash
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev --name init
+npx prisma db seed
+npm run start:dev
+```
 
-## Миграции
-- SQL миграция: `prisma/migrations/000_init/migration.sql` (создаёт users, projects, services, reviews, journal, leads).
-- При наличии БД можно запустить `npm run prisma:migrate` для применения.
+- Admin panel → `http://localhost:4000/admin`.
+- API base → `http://localhost:4000/api/v1`.
 
-## Замечания по окружению
-- Для S3 нужен S3_ENDPOINT/S3_BUCKET/S3_ACCESS_KEY_ID/S3_SECRET_ACCESS_KEY. Без них файлы сохраняются локально в `uploads/` и раздаются статикой `/uploads/...`.
-- AdminJS cookie шифруется `ADMIN_COOKIE_SECRET`.
-- Telegram требует TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID.
-- SMTP_HOST/PORT/USER/PASS/SMTP_FROM (и опционально SMTP_TO) для писем. Если не заданы — отправка пропускается.
+## Admin panel
+
+- Access: email/password (seeded via `ADMIN_DEFAULT_EMAIL` / `ADMIN_DEFAULT_PASSWORD`).
+- Roles:
+  - `SUPER_ADMIN`: full access including user management, leads, and system settings.
+  - `CONTENT_EDITOR`: manages weddings, galleries, reviews, homepage blocks, and blog posts but cannot touch users or system-wide resources.
+- Uploads: cover/galleries use `@adminjs/upload` connected to S3 (or `/uploads` when S3 vars are absent). Uploaded keys are stored in the DB, and API responses expose fully qualified URLs.
+- Session cookies are secured with `ADMIN_COOKIE_SECRET`.
+
+## Public API endpoints
+
+All responses are JSON and use a `/api/v1/...` prefix.
+
+- `GET /api/v1/homepage`: homepage content, featured weddings, and recent visible reviews.
+- `GET /api/v1/weddings`: paginated list of stories (filter with `featured`, `limit`, `offset`).
+- `GET /api/v1/weddings/:slug`: full wedding story with sorted gallery.
+- `GET /api/v1/reviews`: all visible reviews.
+- `GET /api/v1/posts`: published blog posts with pagination.
+- `GET /api/v1/posts/:slug`: single published post.
+- `POST /api/v1/contact`: accepts `{ name, email, phone?, weddingDate?, location, message, source?, honeypot? }`. Honeypot field must stay empty; submissions get saved as new leads, and notifications trigger via Telegram/SMTP.
+
+## Environment variables
+
+| Name | Description |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string. |
+| `NODE_ENV` | `production` in Render, else `development`. |
+| `PORT` | Optional override (Render supplies a port automatically). |
+| `JWT_SECRET` | JWT signing secret for internal auth guards. |
+| `ADMIN_COOKIE_SECRET` | Cookie secret for AdminJS sessions. |
+| `ADMIN_DEFAULT_EMAIL` / `ADMIN_DEFAULT_PASSWORD` | Seed values for the initial `SUPER_ADMIN`. |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, `S3_REGION` | S3 credentials. |
+| `S3_ENDPOINT` | Optional custom endpoint (Yandex, Wasabi, etc.). |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of trusted frontend origins (defaults to `*` when empty). |
+| `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX` | Rate limit window/max per IP. Defaults: 60,000 ms window, 100 requests. |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional Telegram notifications for leads. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO` | Email notification settings. |
+
+## Storage & uploads
+
+- The upload feature (used by AdminJS) reads its provider config from the same env variables above. If S3 is configured, keys are stored there; otherwise, files land in `./uploads` and are served statically via `/uploads`.
+- `StorageService` exposes a helper that turns stored keys into fully qualified URLs for the public API.
+
+## Database & seeds
+
+- Use Prisma Migrate for migrations: `npx prisma migrate dev --name init` (development) and `npx prisma migrate deploy` in production.
+- Seed data (homepage copy, sample story, blog post, admin user) with `npx prisma db seed`.
+
+## Deployment (e.g. Render)
+
+- Build command: `npm install && npm run build`.
+- Start command: `npm run start:prod`.
+- Render env vars should include all of the ones listed above plus `JWT_SECRET`, `ADMIN_*`, and `S3_*`.
+- Configure a pre-deploy hook: `npx prisma migrate deploy && npx prisma db seed` to ensure the latest schema and seeds are applied before each release.

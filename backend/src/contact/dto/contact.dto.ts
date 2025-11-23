@@ -1,23 +1,34 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ContactDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  date: string;
+  phone?: string;
+
+  @IsOptional()
+  @IsDateString()
+  weddingDate?: string;
 
   @IsString()
   @IsNotEmpty()
-  messenger: string;
+  location: string;
 
   @IsString()
   @IsNotEmpty()
-  contact: string;
+  message: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  details: string;
+  source?: string;
+
+  @IsOptional()
+  @IsString()
+  honeypot?: string;
 }

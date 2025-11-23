@@ -1,57 +1,47 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
-import { LangPaginationDto, LangQueryDto } from '../common/dto/lang.dto';
 import { PublicService } from './public.service';
+import { WeddingsQueryDto } from './dto/weddings-query.dto';
+import { PostsQueryDto } from './dto/posts-query.dto';
 
 @Controller()
 export class PublicController {
   constructor(private readonly publicService: PublicService) {}
 
   @Get('homepage')
-  async homepage(@Query() query: LangQueryDto) {
-    return this.publicService.getHomepage(query.lang);
+  getHomepage() {
+    return this.publicService.getHomepage();
   }
 
-  @Get('projects')
-  async projects(@Query() query: LangPaginationDto) {
-    return this.publicService.getProjects(query.lang, {
-      limit: query.limit,
-      offset: query.offset,
-    });
+  @Get('weddings')
+  getWeddings(@Query() query: WeddingsQueryDto) {
+    return this.publicService.getWeddings(query);
   }
 
-  @Get('projects/:slug')
-  async projectDetail(@Param('slug') slug: string, @Query() query: LangQueryDto) {
-    const project = await this.publicService.getProjectBySlug(slug, query.lang);
-    if (!project) {
-      throw new NotFoundException('Project not found');
+  @Get('weddings/:slug')
+  async getWedding(@Param('slug') slug: string) {
+    const story = await this.publicService.getWeddingBySlug(slug);
+    if (!story) {
+      throw new NotFoundException('Wedding story not found');
     }
-    return project;
-  }
-
-  @Get('services')
-  async services(@Query() query: LangQueryDto) {
-    return this.publicService.getServices(query.lang);
+    return story;
   }
 
   @Get('reviews')
-  async reviews(@Query() query: LangQueryDto) {
-    return this.publicService.getReviews(query.lang);
+  getReviews() {
+    return this.publicService.getReviews();
   }
 
-  @Get('journal')
-  async journal(@Query() query: LangPaginationDto) {
-    return this.publicService.getJournal(query.lang, {
-      limit: query.limit,
-      offset: query.offset,
-    });
+  @Get('posts')
+  getPosts(@Query() query: PostsQueryDto) {
+    return this.publicService.getPosts(query);
   }
 
-  @Get('journal/:slug')
-  async journalDetail(@Param('slug') slug: string, @Query() query: LangQueryDto) {
-    const article = await this.publicService.getJournalBySlug(slug, query.lang);
-    if (!article) {
-      throw new NotFoundException('Article not found');
+  @Get('posts/:slug')
+  async getPost(@Param('slug') slug: string) {
+    const post = await this.publicService.getPostBySlug(slug);
+    if (!post) {
+      throw new NotFoundException('Post not found');
     }
-    return article;
+    return post;
   }
 }

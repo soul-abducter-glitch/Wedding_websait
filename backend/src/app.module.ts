@@ -8,6 +8,7 @@ import { AdminModule } from './admin/admin.module';
 import { PublicModule } from './public/public.module';
 import { ContactModule } from './contact/contact.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UploadsModule } from './uploads/uploads.module';
     PublicModule,
     ContactModule,
     UploadsModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

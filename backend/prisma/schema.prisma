@@ -7,79 +7,102 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  CONTENT_EDITOR
+}
+
+enum LeadStatus {
+  NEW
+  VIEWED
+  ANSWERED
+}
+
 model User {
-  id             String   @id @default(uuid()) @db.Uuid
-  email          String   @unique
-  password_hash  String
-  created_at     DateTime @default(now())
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(CONTENT_EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
-model Project {
-  id              String    @id @default(uuid()) @db.Uuid
-  slug            String    @unique
-  cover_image     String
-  title_ru        String
-  title_en        String
-  location_ru     String
-  location_en     String
-  date            DateTime
-  description_ru  String    @db.Text
-  description_en  String    @db.Text
-  gallery         Json
-  is_featured     Boolean   @default(false)
-  sort_order      Int       @default(0)
-  created_at      DateTime  @default(now())
-  reviews         Review[]
-
-  @@index([is_featured, sort_order])
-  @@index([sort_order])
+model WeddingStory {
+  id               String         @id @default(uuid())
+  slug             String         @unique
+  title            String
+  location         String
+  date             DateTime?
+  shortDescription String
+  fullDescription  String
+  coverImageUrl    String
+  isFeatured       Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  images           WeddingImage[]
+  reviews          Review[]
 }
 
-model Service {
-  id          String  @id @default(uuid()) @db.Uuid
-  title_ru    String
-  title_en    String
-  price_ru    String
-  price_en    String
-  features_ru Json
-  features_en Json
-  is_popular  Boolean @default(false)
+model WeddingImage {
+  id             String       @id @default(uuid())
+  weddingStory   WeddingStory @relation(fields: [weddingStoryId], references: [id])
+  weddingStoryId String
+  imageUrl       String
+  alt            String?
+  sortOrder      Int          @default(0)
+  createdAt      DateTime     @default(now())
 }
 
 model Review {
-  id                  String   @id @default(uuid()) @db.Uuid
-  couple_names        String
-  avatar              String
-  text_ru             String   @db.Text
-  text_en             String   @db.Text
-  location_ru         String
-  location_en         String
-  related_project_id  String?
-  related_project     Project? @relation(fields: [related_project_id], references: [id])
-  created_at          DateTime @default(now())
-
-  @@index([related_project_id])
+  id             String         @id @default(uuid())
+  names          String
+  location       String
+  text           String
+  weddingStory   WeddingStory?  @relation(fields: [weddingStoryId], references: [id])
+  weddingStoryId String?
+  isVisible      Boolean        @default(true)
+  createdAt      DateTime       @default(now())
 }
 
-model Journal {
-  id          String   @id @default(uuid()) @db.Uuid
-  slug        String   @unique
-  title_ru    String
-  title_en    String
-  content_ru  String   @db.Text
-  content_en  String   @db.Text
-  cover_image String
-  created_at  DateTime @default(now())
+model HomepageContent {
+  id             String   @id @default(uuid())
+  heroTagline    String?
+  heroTitle      String?
+  heroSubtitle   String?
+  heroStatsLine  String?
+  aboutTitle     String?
+  aboutTextShort String?
+  ctaTitle       String?
+  ctaSubtitle    String?
+  ctaButtonText  String?
+  updatedAt      DateTime @updatedAt
+}
 
-  @@index([created_at])
+model BlogPost {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  title          String
+  coverImageUrl  String?
+  excerpt        String?
+  content        String?
+  publishedAt    DateTime?
+  isPublished    Boolean  @default(false)
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Lead {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String
-  date       String
-  messenger  String
-  contact    String
-  details    String
-  created_at DateTime @default(now())
+  id          String     @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  weddingDate DateTime?
+  location    String
+  message     String
+  source      String?
+  status      LeadStatus @default(NEW)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
