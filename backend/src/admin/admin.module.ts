@@ -1,22 +1,23 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import AdminJS, { CurrentAdmin } from 'adminjs';
-import AdminJSPrisma from '@adminjs/prisma';
-import uploadFeature from '@adminjs/upload';
+import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
+import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
-import { PrismaModule } from '../prisma/prisma.module';
-import { PrismaService } from '../prisma/prisma.service';
-import { UsersModule } from '../users/users.module';
-import { UsersService } from '../users/users.service';
-import { StorageModule } from '../storage/storage.module';
-import { StorageProviderConfig, StorageService } from '../storage/storage.service';
-import { LeadStatus, UserRole } from '@prisma/client';
+import { LeadStatus, Prisma, UserRole } from '@prisma/client';
+import { PrismaModule } from '../prisma/prisma.module.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { UsersModule } from '../users/users.module.js';
+import { UsersService } from '../users/users.service.js';
+import { StorageModule } from '../storage/storage.module.js';
+import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
 
 AdminJS.registerAdapter({
   Resource: AdminJSPrisma.Resource,
   Database: AdminJSPrisma.Database,
 });
+
+const componentLoader = new ComponentLoader();
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -48,12 +49,16 @@ const hashPassword = async (request: Record<string, any>) => {
 const safeFilename = (filename?: string) =>
   filename?.replace(/[^a-z0-9._-]/gi, '_') ?? 'file';
 
-const createUploadFeature = (config: {
+const createUploadFeature = (
+  uploadFeatureImpl: (options: any) => any,
+  config: {
   key: string;
   folder: string;
   provider: StorageProviderConfig;
-}) =>
-  uploadFeature({
+},
+) =>
+  uploadFeatureImpl({
+    componentLoader,
     provider: config.provider,
     properties: {
       key: config.key,
@@ -62,15 +67,25 @@ const createUploadFeature = (config: {
       filesToDelete: `${config.key}FilesToDelete`,
     },
     validation: IMAGE_VALIDATION,
-    uploadPath: (record, filename) => {
+    uploadPath: (record: any, filename: string) => {
       const recordId = record?.params?.id ?? record?.id?.() ?? 'new';
       return `${config.folder}/${recordId}/${Date.now()}-${safeFilename(filename)}`;
     },
   });
 
-const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) => {
+const buildResources = (
+  prisma: PrismaService,
+  provider: StorageProviderConfig,
+  uploadFeatureImpl: (options: any) => any,
+) => {
+  const getModel = (name: Prisma.ModelName) => {
+    const model = Prisma.dmmf.datamodel.models.find((m) => m.name === name);
+    if (!model) throw new Error(`Prisma model not found: ${name}`);
+    return model;
+  };
+
   const userResource = {
-    resource: { model: prisma.user, client: prisma },
+    resource: { model: getModel('User'), client: prisma },
     options: {
       navigation: { name: 'Administration', icon: 'Settings' },
       properties: {
@@ -87,29 +102,17 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
         },
       },
       actions: {
-        new: {
-          isAccessible: superAdminOnly,
-          before: hashPassword,
-        },
-        edit: {
-          isAccessible: superAdminOnly,
-          before: hashPassword,
-        },
-        delete: {
-          isAccessible: superAdminOnly,
-        },
-        list: {
-          isAccessible: superAdminOnly,
-        },
-        show: {
-          isAccessible: superAdminOnly,
-        },
+        new: { isAccessible: superAdminOnly, before: hashPassword },
+        edit: { isAccessible: superAdminOnly, before: hashPassword },
+        delete: { isAccessible: superAdminOnly },
+        list: { isAccessible: superAdminOnly },
+        show: { isAccessible: superAdminOnly },
       },
     },
   };
 
   const weddingStoryResource = {
-    resource: { model: prisma.weddingStory, client: prisma },
+    resource: { model: getModel('WeddingStory'), client: prisma },
     options: {
       navigation: { name: 'Content', icon: 'Document' },
       listProperties: ['title', 'location', 'date', 'isFeatured'],
@@ -126,11 +129,17 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
         fullDescription: { type: 'richtext' },
       },
     },
-    features: [createUploadFeature({ key: 'coverImageUrl', folder: 'weddings/cover', provider })],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'weddings/cover',
+        provider,
+      }),
+    ],
   };
 
   const weddingImageResource = {
-    resource: { model: prisma.weddingImage, client: prisma },
+    resource: { model: getModel('WeddingImage'), client: prisma },
     options: {
       navigation: { name: 'Content', icon: 'Image' },
       sort: { direction: 'asc', sortBy: 'sortOrder' },
@@ -146,11 +155,17 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [createUploadFeature({ key: 'imageUrl', folder: 'weddings/gallery', provider })],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'imageUrl',
+        folder: 'weddings/gallery',
+        provider,
+      }),
+    ],
   };
 
   const reviewResource = {
-    resource: { model: prisma.review, client: prisma },
+    resource: { model: getModel('Review'), client: prisma },
     options: {
       navigation: { name: 'Content', icon: 'Chat' },
       listProperties: ['names', 'location', 'isVisible', 'createdAt'],
@@ -166,7 +181,7 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
   };
 
   const homepageResource = {
-    resource: { model: prisma.homepageContent, client: prisma },
+    resource: { model: getModel('HomepageContent'), client: prisma },
     options: {
       navigation: { name: 'Content', icon: 'Home' },
       actions: {
@@ -180,7 +195,7 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
   };
 
   const blogPostResource = {
-    resource: { model: prisma.blogPost, client: prisma },
+    resource: { model: getModel('BlogPost'), client: prisma },
     options: {
       navigation: { name: 'Content', icon: 'Article' },
       listProperties: ['title', 'isPublished', 'publishedAt'],
@@ -199,7 +214,7 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
   };
 
   const leadResource = {
-    resource: { model: prisma.lead, client: prisma },
+    resource: { model: getModel('Lead'), client: prisma },
     options: {
       navigation: { name: 'Leads', icon: 'RequestChanges' },
       listProperties: ['name', 'email', 'location', 'status', 'createdAt'],
@@ -240,12 +255,14 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
     AdminJsModule.createAdminAsync({
       imports: [ConfigModule, PrismaModule, UsersModule, StorageModule],
       inject: [UsersService, PrismaService, StorageService, ConfigService],
-      useFactory: (
+      useFactory: async (
         usersService: UsersService,
         prismaService: PrismaService,
         storageService: StorageService,
         configService: ConfigService,
       ) => {
+        const uploadModule: any = await import('@adminjs/upload');
+        const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
         return {
           adminJsOptions: {
@@ -254,7 +271,8 @@ const buildResources = (prisma: PrismaService, provider: StorageProviderConfig) 
               companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
               withMadeWithLove: false,
             },
-            resources: buildResources(prismaService, providerConfig),
+            componentLoader,
+            resources: buildResources(prismaService, providerConfig, uploadFeature),
           },
           auth: {
             authenticate: async (email: string, password: string) => {

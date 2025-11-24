@@ -22,7 +22,13 @@ export class StorageService {
     this.region = this.configService.get<string>('S3_REGION');
     this.accessKeyId = this.configService.get<string>('S3_ACCESS_KEY_ID');
     this.secretAccessKey = this.configService.get<string>('S3_SECRET_ACCESS_KEY');
-    this.useS3 = Boolean(this.bucket && this.accessKeyId && this.secretAccessKey);
+    const looksLikePlaceholder = (value?: string | null) =>
+      !value || value.startsWith('change-') || value === 'change-me' || value === 'change-me-too';
+
+    const hasRealS3Creds =
+      this.bucket && this.accessKeyId && this.secretAccessKey && !looksLikePlaceholder(this.accessKeyId) && !looksLikePlaceholder(this.secretAccessKey);
+
+    this.useS3 = Boolean(hasRealS3Creds);
     this.localFolder = join(process.cwd(), 'uploads');
     if (!this.useS3 && !existsSync(this.localFolder)) {
       mkdirSync(this.localFolder, { recursive: true });
@@ -37,7 +43,6 @@ export class StorageService {
           region: this.region ?? 'us-east-1',
           accessKeyId: this.accessKeyId,
           secretAccessKey: this.secretAccessKey,
-          endpoint: this.endpoint,
         },
       };
     }

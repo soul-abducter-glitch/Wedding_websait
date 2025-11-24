@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+﻿import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -38,7 +38,7 @@ async function seedHomepageContent() {
       heroTagline: 'Wedding storyteller & photographer',
       heroTitle: 'Honest light and timeless stories',
       heroSubtitle: 'Documentary-driven weddings across Europe and beyond.',
-      heroStatsLine: '10+ years • 200+ weddings • Available worldwide',
+      heroStatsLine: '10+ years · 200+ weddings · Available worldwide',
       aboutTitle: 'About me',
       aboutTextShort: 'I capture emotions without staging—quiet moments, gentle glances, loud laughs.',
       ctaTitle: 'Let’s plan your day',
@@ -49,51 +49,157 @@ async function seedHomepageContent() {
   console.log('Seeded homepage content');
 }
 
-async function seedWeddingStories() {
-  const count = await prisma.weddingStory.count();
-  if (count > 0) return;
+type StorySeed = {
+  slug: string;
+  title: string;
+  location: string;
+  date: Date;
+  shortDescription: string;
+  fullDescription: string;
+  coverImageUrl: string;
+  isFeatured: boolean;
+  review?: {
+    names: string;
+    location: string;
+    text: string;
+    isVisible: boolean;
+  };
+  images: { imageUrl: string; alt: string; sortOrder: number }[];
+};
 
-  const story = await prisma.weddingStory.create({
-    data: {
-      slug: 'roma-olya-moscow',
-      title: 'Рома и Оля — Moscow',
-      location: 'Moscow, Russia',
-      date: new Date('2024-09-12'),
-      shortDescription: 'Свадьба в московском дворце с классическим светом и живой музыкой.',
-      fullDescription:
-        'Двадцатилетняя история двух семей была рассказана через камерную церемонию и большой танцевальный вечер. Атмосфера была мягкой — много свечей и золотых свечей.',
-      coverImageUrl: 'https://example.com/covers/roma-olya.jpg',
-      isFeatured: true,
-      images: {
-        createMany: {
-          data: [
-            {
-              imageUrl: 'https://example.com/gallery/roma-olya-1.jpg',
-              alt: 'Будущие молодожены на террасе',
-              sortOrder: 1,
-            },
-            {
-              imageUrl: 'https://example.com/gallery/roma-olya-2.jpg',
-              alt: 'Свадебная церемония у окна',
-              sortOrder: 2,
-            },
-          ],
-        },
-      },
-    },
-  });
-
-  await prisma.review.create({
-    data: {
-      names: 'Рома & Оля',
-      location: 'Moscow, Russia',
-      text: 'Свет, эмоции и внимание к деталям — команда создала историю, которую хочется пересматривать снова и снова.',
-      weddingStoryId: story.id,
+const storiesData: StorySeed[] = [
+  {
+    slug: 'anna-dmitriy-saint-petersburg',
+    title: 'Анна и Дмитрий',
+    location: 'Санкт-Петербург, Россия',
+    date: new Date('2024-08-15'),
+    shortDescription: 'Классическая церемония в особняке с видом на Неву.',
+    fullDescription:
+      'Светлые интерьеры, пианино и большой зимний сад позволили сосредоточиться на чувствах — никакой постановки, только искренняя история.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=1200&q=80',
+    isFeatured: true,
+    review: {
+      names: 'Анна и Дмитрий',
+      location: 'Санкт-Петербург, Россия',
+      text: 'Это была наша история. В кадрах чувствуется и свет, и атмосфера, и каждое дыхание.',
       isVisible: true,
     },
-  });
+    images: [
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
+        alt: 'Анна и Дмитрий в колонном зале',
+        sortOrder: 1,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+        alt: 'Нежный портрет на лестнице',
+        sortOrder: 2,
+      },
+    ],
+  },
+  {
+    slug: 'maria-aleksandr-moscow',
+    title: 'Мария и Александр',
+    location: 'Москва, Россия',
+    date: new Date('2024-07-22'),
+    shortDescription: 'Современная городская свадьба в центре Москвы.',
+    fullDescription:
+      'Прогулка по булыжным улицам, ужин со стеклянными фасадами и вечер под светом витрин. Современные силуэты и искренние эмоции.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80',
+    isFeatured: true,
+    review: {
+      names: 'Мария и Александр',
+      location: 'Москва, Россия',
+      text: 'Спасибо за честную историю про жемчужины города и наши непоставленные секунды.',
+      isVisible: true,
+    },
+    images: [
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
+        alt: 'Мария идёт по московской улице',
+        sortOrder: 1,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=900&q=80',
+        alt: 'Пара держится за руки',
+        sortOrder: 2,
+      },
+    ],
+  },
+  {
+    slug: 'elena-sergey-tuscany',
+    title: 'Елена и Сергей',
+    location: 'Тоскана, Италия',
+    date: new Date('2024-09-05'),
+    shortDescription: 'Destination wedding среди виноградников.',
+    fullDescription:
+      'Тёплый день, холмы Тосканы, ужин на террасе и лёгкая итальянская музыка. История о спокойствии и солнце.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=1200&q=80',
+    isFeatured: false,
+    review: {
+      names: 'Елена и Сергей',
+      location: 'Тоскана, Италия',
+      text: 'Пока мы наслаждались вином и разговором, вы ловили моменты так, будто фотографировали наше путешествие всей жизни.',
+      isVisible: true,
+    },
+    images: [
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80',
+        alt: 'Пара на фоне тосканских холмов',
+        sortOrder: 1,
+      },
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80',
+        alt: 'Рука в руке на закате',
+        sortOrder: 2,
+      },
+    ],
+  },
+];
 
-  console.log('Seeded wedding story');
+async function seedWeddingStories() {
+  for (const story of storiesData) {
+    const createdStory = await prisma.weddingStory.upsert({
+      where: { slug: story.slug },
+      update: {
+        title: story.title,
+        location: story.location,
+        date: story.date,
+        shortDescription: story.shortDescription,
+        fullDescription: story.fullDescription,
+        coverImageUrl: story.coverImageUrl,
+        isFeatured: story.isFeatured,
+        images: {
+          deleteMany: {},
+          create: story.images,
+        },
+      },
+      create: {
+        slug: story.slug,
+        title: story.title,
+        location: story.location,
+        date: story.date,
+        shortDescription: story.shortDescription,
+        fullDescription: story.fullDescription,
+        coverImageUrl: story.coverImageUrl,
+        isFeatured: story.isFeatured,
+        images: {
+          create: story.images,
+        },
+      },
+    });
+
+    await prisma.review.deleteMany({ where: { weddingStoryId: createdStory.id } });
+    if (story.review) {
+      await prisma.review.create({
+        data: {
+          ...story.review,
+          weddingStoryId: createdStory.id,
+        },
+      });
+    }
+  }
+  console.log('Seeded wedding stories');
 }
 
 async function seedBlogPosts() {
@@ -111,7 +217,6 @@ async function seedBlogPosts() {
       isPublished: true,
     },
   });
-
   console.log('Seeded blog posts');
 }
 

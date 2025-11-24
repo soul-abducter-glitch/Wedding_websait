@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
-import { PublicService } from './public.service';
-import { WeddingsQueryDto } from './dto/weddings-query.dto';
-import { PostsQueryDto } from './dto/posts-query.dto';
+import { PublicService } from './public.service.js';
+import { WeddingsQueryDto } from './dto/weddings-query.dto.js';
+import { PostsQueryDto } from './dto/posts-query.dto.js';
 
 @Controller()
 export class PublicController {

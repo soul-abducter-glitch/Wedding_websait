@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { StorageService } from '../storage/storage.service';
-import { WeddingsQueryDto } from './dto/weddings-query.dto';
-import { PostsQueryDto } from './dto/posts-query.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { StorageService } from '../storage/storage.service.js';
+import { WeddingsQueryDto } from './dto/weddings-query.dto.js';
+import { PostsQueryDto } from './dto/posts-query.dto.js';
 
 type StoryWithImages = Prisma.WeddingStoryGetPayload<{
   include: { images: { orderBy: { sortOrder: 'asc' } } };

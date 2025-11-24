@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PublicService } from './public.service';
-import { PublicController } from './public.controller';
-import { StorageModule } from '../storage/storage.module';
+import { PublicService } from './public.service.js';
+import { PublicController } from './public.controller.js';
+import { StorageModule } from '../storage/storage.module.js';
 
 @Module({
   imports: [StorageModule],
