@@ -9,6 +9,8 @@ import type { Metadata } from "next"
 import type { JournalPost } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
+import { API_BASE, getJournalPosts, type ApiPost } from "@/lib/api"
+import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
@@ -22,11 +24,42 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+export const revalidate = 0
+export const dynamic = "force-dynamic"
+
+const API_ORIGIN = API_BASE.replace(/\/api.*$/, "")
+
+const resolveImage = (url?: string | null) => {
+  if (!url) return "/placeholder.jpg"
+  if (url.startsWith("/uploads/http")) return url.replace(/^\/uploads\//, "")
+  if (url.startsWith("/uploads")) return `${API_ORIGIN}${url}`
+  return url
+}
+
+const mapApiPostToJournal = (post: ApiPost, locale: string): JournalPost => ({
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt ?? "",
+  category: locale === "ru" ? "Журнал" : "Journal",
+  date: post.publishedAt ? formatDisplayDate(post.publishedAt, locale) : "",
+  image: resolveImage(post.coverImageUrl),
+  content: [{ type: "paragraph", text: post.content ?? "" }],
+})
+
 export default async function JournalPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
-  const posts = t.raw("journalPosts") as JournalPost[]
+
+  let posts: JournalPost[] = []
+  try {
+    const response = await getJournalPosts({ limit: 50, offset: 0 })
+    posts = response.items.map((item) => mapApiPostToJournal(item, locale))
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Journal API unavailable, using static translations. Reason: ${reason}`)
+    posts = t.raw("journalPosts") as JournalPost[]
+  }
 
   return (
     <Section background="base" className="pt-12 md:pt-20">

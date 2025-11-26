@@ -74,6 +74,18 @@ type StorySeed = {
   images: { imageUrl: string; alt: string; sortOrder: number }[];
 };
 
+type BlogPostSeed = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImageUrl: string;
+  publishedAt: Date;
+  isPublished: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+};
+
 const storiesData: StorySeed[] = [
   {
     slug: 'anna-dmitriy-saint-petersburg',
@@ -164,6 +176,71 @@ const storiesData: StorySeed[] = [
   },
 ];
 
+const blogPostsData: BlogPostSeed[] = [
+  {
+    slug: 'how-to-choose-wedding-photographer',
+    title: 'Как выбрать свадебного фотографа',
+    excerpt:
+      'Чек-лист из 5 пунктов: стиль, дедлайны, команда, запасной план и прозрачный договор.',
+    content:
+      'Разберитесь, какой стиль съёмки вам ближе: документальная репортажная история, классическая постановка или модный editorial. Всегда просите показать полные серии, а не только 20 лучших кадров из разных проектов. Уточните, кто будет снимать в день свадьбы и есть ли второй фотограф или ассистент. В договоре должны быть прописаны сроки готовности фото и сценарии на случай форс-мажоров.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
+    publishedAt: new Date('2024-11-15'),
+    isPublished: true,
+    seoTitle: 'Как выбрать свадебного фотографа',
+    seoDescription: 'Пять пунктов, которые помогут найти фотографа с подходящим стилем и надёжным договором.',
+  },
+  {
+    slug: 'wedding-day-timeline',
+    title: 'Таймлайн свадебного дня без хаоса',
+    excerpt:
+      'Пример расписания с запасом по времени на сборы, first look, церемонию и банкет, чтобы ничего не съехало.',
+    content:
+      'Начните строить расписание от времени церемонии и захода солнца. На сборы выделяйте минимум 90 минут, first look — 20–30 минут, переезды планируйте с запасом. Попросите координатора или друга следить за таймингом, а фотографа — подсказать оптимальное время для портретов в мягком свете.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    publishedAt: new Date('2024-10-02'),
+    isPublished: true,
+    seoTitle: 'Идеальное расписание свадебного дня',
+    seoDescription: 'Готовый таймлайн с запасом по времени, чтобы день прошёл спокойно и без спешки.',
+  },
+  {
+    slug: 'best-light-for-photos',
+    title: 'Лучший свет для свадебных фото',
+    excerpt: 'Когда снимать портреты, чтобы кожа была мягкой, а фон — объёмным. Простые подсказки по локациям.',
+    content:
+      'Самый flattering свет — за час до заката и в пасмурный день. Внутри помещения ищите окна в рост и однотипную температуру света: выключите тёплые лампы, если рядом открытое окно. На улице избегайте резкого полуденного солнца в лицо — лучше зайти в тень здания или под навес.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80',
+    publishedAt: new Date('2024-09-10'),
+    isPublished: true,
+    seoTitle: 'Лучший свет для свадебных фотографий',
+    seoDescription: 'Советы, когда и где снимать, чтобы получить мягкий свет и красивые объёмные кадры.',
+  },
+  {
+    slug: 'destination-wedding-guide',
+    title: 'Гид по destination-свадьбам',
+    excerpt: 'Разбираем локации, документы и работу с подрядчиками на расстоянии — от первой идеи до съёмочного дня.',
+    content:
+      'Определите приоритеты: вид на море, виноградники или городской пейзаж. Узнайте, нужен ли официальный брак в стране и где проще сделать символическую церемонию. Работая с подрядчиками удалённо, фиксируйте договорённости в письмах и созвонитесь за месяц до даты, чтобы сверить таймлайн и логистику команды.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=1200&q=80',
+    publishedAt: new Date('2024-08-18'),
+    isPublished: true,
+    seoTitle: 'Как подготовить destination wedding',
+    seoDescription: 'Мини-гид по документам, выбору локации и работе с подрядчиками на расстоянии.',
+  },
+  {
+    slug: 'how-to-plan-elopement',
+    title: 'Как спланировать elopement в Европе',
+    excerpt: 'Мини-свадьба на двоих: что учесть при выборе страны, локации и времени съёмки.',
+    content:
+      'Elopement — это про тихую историю без гостей. Выберите страну с простыми правилами для пары: Италия, Португалия или Грузия. Планируйте съёмку на рассвете или закате, чтобы локации были пустыми. Продумайте запасной вариант на случай дождя — интерьерная студия или укрытая терраса.',
+    coverImageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
+    publishedAt: new Date('2024-07-12'),
+    isPublished: true,
+    seoTitle: 'Elopement в Европе без стресса',
+    seoDescription: 'Чек-лист по выбору страны, времени съёмки и запасному плану для elopement.',
+  },
+];
+
 async function seedWeddingStories() {
   for (const story of storiesData) {
     const createdStory = await prisma.weddingStory.upsert({
@@ -210,20 +287,22 @@ async function seedWeddingStories() {
 }
 
 async function seedBlogPosts() {
-  const count = await prisma.blogPost.count();
-  if (count > 0) return;
-
-  await prisma.blogPost.create({
-    data: {
-      slug: 'intimate-city-nights',
-      title: 'Intimate city nights',
-      coverImageUrl: 'https://example.com/blog/intimate-city.jpg',
-      excerpt: 'Evenings in the city glow pale gold after the ceremony. Here is how we capture that light.',
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-      publishedAt: new Date(),
-      isPublished: true,
-    },
-  });
+  for (const post of blogPostsData) {
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: post.coverImageUrl,
+        publishedAt: post.publishedAt,
+        isPublished: post.isPublished,
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
+      },
+      create: post,
+    });
+  }
   console.log('Seeded blog posts');
 }
 

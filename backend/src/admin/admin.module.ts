@@ -204,9 +204,11 @@ const buildResources = (
   const blogPostResource = {
     resource: { model: getModel('BlogPost'), client: prisma },
     options: {
-      navigation: { name: 'Content', icon: 'Article' },
-      listProperties: ['title', 'isPublished', 'publishedAt'],
-      filterProperties: ['isPublished', 'publishedAt'],
+      navigation: { name: 'Журнал', icon: 'Article' },
+      id: 'Журналы',
+      sort: { sortBy: 'publishedAt', direction: 'desc' },
+      listProperties: ['title', 'slug', 'publishedAt', 'isPublished'],
+      filterProperties: ['isPublished', 'publishedAt', 'slug'],
       actions: {
         list: { isAccessible: contentEditorAccess },
         show: { isAccessible: contentEditorAccess },
@@ -215,9 +217,27 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        content: { type: 'richtext' },
+        title: { label: 'Заголовок' },
+        slug: { label: 'Ссылка (slug)' },
+        excerpt: { label: 'Короткое описание', type: 'textarea' },
+        coverImageUrl: {
+          label: 'Обложка (URL)',
+          isVisible: { list: false, filter: false, show: true, edit: true },
+        },
+        content: { type: 'richtext', label: 'Текст' },
+        isPublished: { label: 'Опубликовано' },
+        publishedAt: { label: 'Дата публикации' },
+        seoTitle: { label: 'SEO заголовок' },
+        seoDescription: { label: 'SEO описание', type: 'textarea' },
       },
     },
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'blog/covers',
+        provider,
+      }),
+    ],
   };
 
   const leadResource = {

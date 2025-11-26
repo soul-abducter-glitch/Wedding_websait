@@ -10,18 +10,48 @@ import { notFound } from "next/navigation"
 import type { ContentBlock, JournalPost } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
-import ru from "@/i18n/messages/ru"
+import { API_BASE, getJournalPost, getJournalPosts, type ApiPost } from "@/lib/api"
+import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> }
 
-export function generateStaticParams() {
-  const base = (ru.journalPosts as JournalPost[]).map((post) => post.slug)
-  return base.flatMap((slug) => [{ locale: "ru", slug }, { locale: "en", slug }])
+export const revalidate = 0
+export const dynamic = "force-dynamic"
+
+const API_ORIGIN = API_BASE.replace(/\/api.*$/, "")
+const resolveImage = (url?: string | null) => {
+  if (!url) return "/placeholder.jpg"
+  if (url.startsWith("/uploads/http")) return url.replace(/^\/uploads\//, "")
+  if (url.startsWith("/uploads")) return `${API_ORIGIN}${url}`
+  return url
 }
+
+const mapApiPostToJournal = (post: ApiPost, locale: string): JournalPost => ({
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt ?? "",
+  category: locale === "ru" ? "Журнал" : "Journal",
+  date: post.publishedAt ? formatDisplayDate(post.publishedAt, locale) : "",
+  image: resolveImage(post.coverImageUrl),
+  content: [{ type: "paragraph", text: post.content ?? "" }],
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
   const t = await getTranslations({ locale })
+  try {
+    const post = await getJournalPost(slug)
+    if (post) {
+      return {
+        title: post.seoTitle || post.title,
+        description: post.seoDescription || post.excerpt || undefined,
+        alternates: buildAlternateLinks(`/journal/${slug}`),
+      }
+    }
+  } catch {
+    // Fallback below
+  }
+
   const posts = t.raw("journalPosts") as JournalPost[]
   const post = posts.find((item) => item.slug === slug)
 
@@ -65,15 +95,30 @@ export default async function JournalPostPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
-  const posts = t.raw("journalPosts") as JournalPost[]
-  const post = posts.find((item) => item.slug === slug)
+
+  let posts: JournalPost[] = []
+  let post: JournalPost | undefined
+
+  try {
+    const apiPost = await getJournalPost(slug)
+    if (apiPost) {
+      post = mapApiPostToJournal(apiPost, locale)
+    }
+    const list = await getJournalPosts({ limit: 20, offset: 0 })
+    posts = list.items.map((item) => mapApiPostToJournal(item, locale))
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Journal API unavailable, using static translations. Reason: ${reason}`)
+    posts = t.raw("journalPosts") as JournalPost[]
+    post = posts.find((item) => item.slug === slug)
+  }
 
   if (!post) {
     notFound()
   }
 
   const related =
-    post!.relatedSlugs?.map((relatedSlug) => posts.find((item) => item.slug === relatedSlug)).filter(Boolean) ??
+    post.relatedSlugs?.map((relatedSlug) => posts.find((item) => item.slug === relatedSlug)).filter(Boolean) ??
     posts.filter((item) => item.slug !== slug).slice(0, 3)
 
   return (

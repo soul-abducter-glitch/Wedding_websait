@@ -75,6 +75,25 @@ export type ApiReview = {
   createdAt: string;
 };
 
+export type ApiPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  publishedAt: string | null;
+  content: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+};
+
+export type ApiPostsResponse = {
+  items: ApiPost[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export async function getProjects(lang: string, params?: { limit?: number; offset?: number }) {
   const qs = new URLSearchParams();
   if (lang) qs.set('lang', lang);
@@ -102,6 +121,18 @@ export async function getServices(lang: string) {
 export async function getReviews(lang: string) {
   const qs = lang ? `?lang=${lang}` : '';
   return fetchJson<ApiReview[]>(`/reviews${qs}`, { revalidate: 180 });
+}
+
+export async function getJournalPosts(params?: { limit?: number; offset?: number }) {
+  const qs = new URLSearchParams();
+  if (params?.limit) qs.set('limit', String(params.limit));
+  if (params?.offset) qs.set('offset', String(params.offset));
+  const suffix = qs.size ? `?${qs.toString()}` : '';
+  return fetchJson<ApiPostsResponse>(`/posts${suffix}`, { cache: 'no-store' });
+}
+
+export async function getJournalPost(slug: string) {
+  return fetchJson<ApiPost>(`/posts/${slug}`, { cache: 'no-store' });
 }
 
 export { API_BASE, fetchJson };

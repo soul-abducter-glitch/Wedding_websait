@@ -108,7 +108,7 @@ export class PublicService {
       total,
       limit: take,
       offset: skip,
-      items: items.map(this.mapPost),
+      items: items.map((post) => this.mapPost(post)),
     };
   }
 
@@ -164,17 +164,18 @@ export class PublicService {
     };
   }
 
-  private mapPost(post: Prisma.BlogPostGetPayload<{}>) {
+  private mapPost = (post: Prisma.BlogPostGetPayload<{}>) => {
+    const cover = post.coverImageUrl ? this.storage.getPublicUrl(post.coverImageUrl) : null;
     return {
       id: post.id,
       slug: post.slug,
       title: post.title,
       excerpt: post.excerpt,
-      coverImageUrl: post.coverImageUrl,
+      coverImageUrl: cover ?? post.coverImageUrl,
       publishedAt: post.publishedAt,
       seoTitle: post.seoTitle,
       seoDescription: post.seoDescription,
       content: post.content,
     };
-  }
+  };
 }
