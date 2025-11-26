@@ -25,7 +25,11 @@ async function bootstrap() {
     .filter(Boolean);
 
   app.use(cors({ origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : true }));
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(cookieParser());
 
   const windowMs = Number(configService.get<string>('RATE_LIMIT_WINDOW_MS')) || 60 * 1000;

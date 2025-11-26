@@ -17,7 +17,7 @@ export class PublicService {
   ) {}
 
   async getHomepage() {
-    const homepageContent = await this.prisma.homepageContent.findFirst({
+    const homepageContentRecord = await this.prisma.homepageContent.findFirst({
       orderBy: { updatedAt: 'desc' },
     });
     const featuredWeddings = await this.prisma.weddingStory.findMany({
@@ -33,7 +33,15 @@ export class PublicService {
     });
 
     return {
-      homepageContent,
+      homepageContent: homepageContentRecord
+        ? {
+            ...homepageContentRecord,
+            aboutImageUrl: homepageContentRecord.aboutImageUrl
+              ? this.storage.getPublicUrl(homepageContentRecord.aboutImageUrl)
+              : null,
+            aboutImageAlt: homepageContentRecord.aboutImageAlt,
+          }
+        : null,
       featuredWeddings: featuredWeddings.map((story) => this.mapStoryListItem(story)),
       reviews: reviews.map(this.mapReview),
     };

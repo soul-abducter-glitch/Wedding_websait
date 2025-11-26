@@ -192,6 +192,13 @@ const buildResources = (
         edit: { isAccessible: contentEditorAccess },
       },
     },
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'aboutImageUrl',
+        folder: 'homepage/about',
+        provider,
+      }),
+    ],
   };
 
   const blogPostResource = {

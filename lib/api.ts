@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://localhost:4000/api';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.API_BASE_URL ||
+  'http://localhost:4000/api/v1';
 const isServer = typeof window === 'undefined';
 
 type FetchOptions = RequestInit & { revalidate?: number };
@@ -21,7 +24,7 @@ async function fetchJson<T>(path: string, options: FetchOptions = {}): Promise<T
     init.body = JSON.stringify(rest.body);
   }
 
-  if (isServer && typeof revalidate === 'number') {
+  if (isServer && typeof revalidate === 'number' && rest.cache !== 'no-store') {
     init.next = { revalidate };
   }
 
@@ -80,7 +83,7 @@ export async function getProjects(lang: string, params?: { limit?: number; offse
 
   const query = qs.toString();
   const suffix = query ? `?${query}` : '';
-  return fetchJson<ApiProjectsResponse>(`/projects${suffix}`, { revalidate: 120 });
+  return fetchJson<ApiProjectsResponse>(`/projects${suffix}`, { cache: 'no-store' });
 }
 
 export async function getProject(slug: string, lang: string) {
@@ -88,7 +91,7 @@ export async function getProject(slug: string, lang: string) {
   if (lang) qs.set('lang', lang);
   const query = qs.toString();
   const suffix = query ? `?${query}` : '';
-  return fetchJson<ApiProject>(`/projects/${slug}${suffix}`, { revalidate: 300 });
+  return fetchJson<ApiProject>(`/projects/${slug}${suffix}`, { cache: 'no-store' });
 }
 
 export async function getServices(lang: string) {

@@ -7,6 +7,7 @@ export class AppController {
 
   @Get('health')
   getHealth() {
+    console.log('Health check endpoint called');
     return this.appService.getHealth();
   }
 

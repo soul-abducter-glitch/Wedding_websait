@@ -70,6 +70,8 @@ model HomepageContent {
   heroTitle      String?
   heroSubtitle   String?
   heroStatsLine  String?
+  aboutImageUrl  String?
+  aboutImageAlt  String?
   aboutTitle     String?
   aboutTextShort String?
   ctaTitle       String?

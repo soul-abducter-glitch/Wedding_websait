@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useForm, type UseFormRegisterReturn } from "react-hook-form"
+import { useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
@@ -42,7 +42,8 @@ export function ContactForm() {
   })
 
   const contactOptions = t.raw("preferredContactOptions") as { value: ContactMethod; label: string }[]
-  const selectedContact = form.watch("preferredContact")
+  const selectedContact =
+    useWatch({ control: form.control, name: "preferredContact" }) ?? CONTACT_METHODS[0]
 
   const [status, setStatus] = useState<Status>("idle")
 

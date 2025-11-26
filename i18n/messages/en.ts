@@ -407,6 +407,8 @@ const en = {
       primaryCta: "Check the date",
       secondaryCta: "View portfolio",
       imageAlt: "Wedding photographer Anna Petrova — couple on a walk, wedding shoot",
+      aboutImageAlt: "Photographer at work",
+
     },
     forWhom: {
       title: "Who my work is for",

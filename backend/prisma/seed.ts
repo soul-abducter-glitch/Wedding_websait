@@ -30,22 +30,29 @@ async function seedAdmin() {
 }
 
 async function seedHomepageContent() {
-  const count = await prisma.homepageContent.count();
-  if (count > 0) return;
+  const data = {
+    heroTagline: 'Wedding storyteller & photographer',
+    heroTitle: 'Honest light and timeless stories',
+    heroSubtitle: 'Documentary-driven weddings across Europe and beyond.',
+    heroStatsLine: '10+ years · 200+ weddings · Available worldwide',
+    aboutTitle: 'About me',
+    aboutTextShort: 'I capture emotions without staging—quiet moments, gentle glances, loud laughs.',
+    ctaTitle: 'Let’s plan your day',
+    ctaSubtitle: 'Share your details and I will reply with availability and packages',
+    ctaButtonText: 'Check date',
+    aboutImageUrl: null,
+  };
 
-  await prisma.homepageContent.create({
-    data: {
-      heroTagline: 'Wedding storyteller & photographer',
-      heroTitle: 'Honest light and timeless stories',
-      heroSubtitle: 'Documentary-driven weddings across Europe and beyond.',
-      heroStatsLine: '10+ years · 200+ weddings · Available worldwide',
-      aboutTitle: 'About me',
-      aboutTextShort: 'I capture emotions without staging—quiet moments, gentle glances, loud laughs.',
-      ctaTitle: 'Let’s plan your day',
-      ctaSubtitle: 'Share your details and I will reply with availability and packages',
-      ctaButtonText: 'Check date',
-    },
-  });
+  const existing = await prisma.homepageContent.findFirst();
+  if (existing) {
+    await prisma.homepageContent.update({
+      where: { id: existing.id },
+      data,
+    });
+  } else {
+    await prisma.homepageContent.create({ data });
+  }
+
   console.log('Seeded homepage content');
 }
 

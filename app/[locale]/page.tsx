@@ -13,6 +13,28 @@ import { TestimonialCard } from "@/components/ui/testimonial-card"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { Hero } from "@/components/sections/hero"
 
+export const revalidate = 0
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.API_BASE_URL ||
+  "http://localhost:4000/api/v1"
+const API_ORIGIN = API_BASE.replace(/\/api.*$/, "")
+const FALLBACK_ABOUT_IMAGE = "/female-photographer.png"
+
+async function resolveAboutImageUrl(raw?: string | null) {
+  const normalized =
+    raw?.startsWith("/uploads") ? `${API_ORIGIN}${raw}` : raw ?? FALLBACK_ABOUT_IMAGE
+  if (normalized === FALLBACK_ABOUT_IMAGE) return normalized
+  try {
+    const head = await fetch(normalized, { method: "HEAD", cache: "no-store" })
+    if (!head.ok) return FALLBACK_ABOUT_IMAGE
+  } catch {
+    return FALLBACK_ABOUT_IMAGE
+  }
+  return normalized
+}
+
 type PageProps = {
   params: Promise<{ locale: string }>
 }
@@ -34,6 +56,16 @@ export default async function HomePage({ params }: PageProps) {
     secondaryCta: string
     imageAlt: string
   }
+
+  const homepageResponse = await fetch(`${API_BASE}/homepage`, {
+    cache: "no-store",
+  }).catch(() => null)
+  const homepageData =
+    homepageResponse && homepageResponse.ok ? await homepageResponse.json() : null
+  const aboutImageUrlRaw = homepageData?.homepageContent?.aboutImageUrl
+  const aboutImageUrl = await resolveAboutImageUrl(aboutImageUrlRaw)
+  const aboutImageAlt =
+    homepageData?.homepageContent?.aboutImageAlt ?? t("home.hero.imageAlt")
 
   const forWhom = t.raw("home.forWhom") as {
     title: string
@@ -135,7 +167,7 @@ export default async function HomePage({ params }: PageProps) {
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
             <AnimatedSection>
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
-                <Image src="/female-photographer.png" alt="Женщина-фотограф с камерой" fill className="object-cover" />
+                <Image src={aboutImageUrl} alt={aboutImageAlt} fill className="object-cover" />
               </div>
             </AnimatedSection>
             <AnimatedSection delay={0.12} className="space-y-4">

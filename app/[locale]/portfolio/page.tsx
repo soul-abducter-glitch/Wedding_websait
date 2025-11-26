@@ -13,7 +13,8 @@ import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
-export const revalidate = 120
+export const revalidate = 0
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
