@@ -14,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
+  app.set('trust proxy', 1);
   app.disable('x-powered-by');
 
   const configService = app.get(ConfigService);

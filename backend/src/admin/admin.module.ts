@@ -325,6 +325,7 @@ const buildResources = (
         return {
           adminJsOptions: {
             rootPath: '/admin',
+            assetsCDN: configService.get('ADMIN_ASSETS_CDN'),
             branding: {
               companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
               withMadeWithLove: false,
