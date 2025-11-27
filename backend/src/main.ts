@@ -8,7 +8,42 @@ import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { join } from 'path';
+import bcrypt from 'bcryptjs';
+import { UserRole } from '@prisma/client';
+import { PrismaService } from './prisma/prisma.service.js';
 import { AppModule } from './app.module.js';
+
+const ensureAdminOnBoot = async (
+  app: NestExpressApplication,
+  configService: ConfigService,
+): Promise<void> => {
+  const shouldSeed = configService.get<string>('ADMIN_SEED_ON_BOOT') === 'true';
+  if (!shouldSeed) return;
+
+  const email = configService.get<string>('ADMIN_DEFAULT_EMAIL');
+  const password = configService.get<string>('ADMIN_DEFAULT_PASSWORD');
+  if (!email || !password) {
+    console.warn('ADMIN_SEED_ON_BOOT=true but ADMIN_DEFAULT_EMAIL or ADMIN_DEFAULT_PASSWORD is missing');
+    return;
+  }
+
+  const prisma = app.get(PrismaService);
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    console.log(`Admin user ${email} already exists, skipping auto-seed.`);
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      role: UserRole.SUPER_ADMIN,
+    },
+  });
+  console.log(`Admin user created on boot: ${email}`);
+};
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -45,6 +80,8 @@ async function bootstrap() {
   );
 
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+
+  await ensureAdminOnBoot(app, configService);
 
   app.setGlobalPrefix('api/v1', {
     // exclude all AdminJS routes from the API prefix
