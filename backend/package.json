@@ -25,7 +25,7 @@
     "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@adminjs/bundler": "^1.0.0",
+    "@adminjs/bundler": "^7.0.0",
     "@adminjs/express": "^6.1.1",
     "@adminjs/nestjs": "^7.0.0",
     "@adminjs/prisma": "^5.0.4",
