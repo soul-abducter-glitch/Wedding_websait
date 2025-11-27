@@ -13,16 +13,16 @@ export function SiteFooter() {
   const social = t.raw("footer.social") as { instagram: string; pinterest: string }
 
   return (
-    <footer className="border-t border-border-subtle bg-bg-base py-16">
+    <footer className="bg-bg-base border-t border-border-subtle/80 py-16">
       <Container>
-        <div className="grid gap-12 md:grid-cols-4 mb-12">
-          <div className="max-w-xs">
-            <h3 className="font-display text-2xl mb-4">{t("brand")}</h3>
-            <p className="text-sm text-text-muted leading-relaxed">{t("footer.tagline")}</p>
+        <div className="grid gap-12 md:grid-cols-12 mb-12">
+          <div className="md:col-span-4 space-y-4">
+            <h3 className="font-display text-2xl">{t("brand")}</h3>
+            <p className="text-sm text-text-muted leading-loose max-w-xs mt-6">{t("footer.tagline")}</p>
           </div>
 
-          <div>
-            <h4 className="text-xs uppercase tracking-widest mb-4">{t("footer.navigationTitle")}</h4>
+          <div className="md:col-span-3">
+            <h4 className="text-xs uppercase tracking-[0.2em] text-text-muted mb-4">{t("footer.navigationTitle")}</h4>
             <ul className="space-y-2 text-sm text-text-muted">
               {navItems.slice(0, 5).map((item) => (
                 <li key={item.href}>
@@ -34,8 +34,8 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-xs uppercase tracking-widest mb-4">{t("footer.contactTitle")}</h4>
+          <div className="md:col-span-3">
+            <h4 className="text-xs uppercase tracking-[0.2em] text-text-muted mb-4">{t("footer.contactTitle")}</h4>
             <ul className="space-y-2 text-sm text-text-muted">
               <li>
                 <a href={`tel:${contacts.phone}`} className="hover:text-text-main transition-colors">
@@ -55,8 +55,8 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-xs uppercase tracking-widest mb-4">{t("footer.socialTitle")}</h4>
+          <div className="md:col-span-2">
+            <h4 className="text-xs uppercase tracking-[0.2em] text-text-muted mb-4">{t("footer.socialTitle")}</h4>
             <ul className="space-y-2 text-sm text-text-muted">
               <li>
                 <a

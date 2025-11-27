@@ -114,7 +114,8 @@ const buildResources = (
   const weddingStoryResource = {
     resource: { model: getModel('WeddingStory'), client: prisma },
     options: {
-      navigation: { name: 'Content', icon: 'Document' },
+      navigation: { name: 'Контент', icon: 'Document' },
+      resourceName: 'Истории',
       listProperties: ['title', 'location', 'date', 'isFeatured'],
       filterProperties: ['location', 'isFeatured', 'date', 'title'],
       actions: {
@@ -125,8 +126,13 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        coverImageUrl: { isVisible: false },
-        fullDescription: { type: 'richtext' },
+        title: { label: 'Заголовок' },
+        location: { label: 'Локация' },
+        date: { label: 'Дата' },
+        shortDescription: { label: 'Короткое описание', type: 'textarea' },
+        fullDescription: { type: 'richtext', label: 'Полное описание' },
+        coverImageUrl: { isVisible: false, label: 'Обложка' },
+        isFeatured: { label: 'В избранном' },
       },
     },
     features: [
@@ -141,11 +147,14 @@ const buildResources = (
   const weddingImageResource = {
     resource: { model: getModel('WeddingImage'), client: prisma },
     options: {
-      navigation: { name: 'Content', icon: 'Image' },
+      navigation: { name: 'Контент', icon: 'Image' },
+      resourceName: 'Галерея',
       sort: { direction: 'asc', sortBy: 'sortOrder' },
       properties: {
-        imageUrl: { isVisible: false },
-        weddingStoryId: { position: 1 },
+        weddingStoryId: { position: 1, label: 'История' },
+        imageUrl: { isVisible: false, label: 'Изображение' },
+        alt: { label: 'ALT текст' },
+        sortOrder: { label: 'Порядок' },
       },
       actions: {
         list: { isAccessible: contentEditorAccess },
@@ -167,7 +176,8 @@ const buildResources = (
   const reviewResource = {
     resource: { model: getModel('Review'), client: prisma },
     options: {
-      navigation: { name: 'Content', icon: 'Chat' },
+      navigation: { name: 'Контент', icon: 'Chat' },
+      resourceName: 'Отзывы',
       listProperties: ['names', 'location', 'isVisible', 'createdAt'],
       filterProperties: ['isVisible'],
       actions: {
@@ -177,19 +187,40 @@ const buildResources = (
         edit: { isAccessible: contentEditorAccess },
         delete: { isAccessible: superAdminOnly },
       },
+      properties: {
+        names: { label: 'Имена пары' },
+        location: { label: 'Локация' },
+        text: { label: 'Текст отзыва', type: 'textarea' },
+        isVisible: { label: 'Показывать на сайте' },
+        createdAt: { label: 'Создан' },
+      },
     },
   };
 
   const homepageResource = {
     resource: { model: getModel('HomepageContent'), client: prisma },
     options: {
-      navigation: { name: 'Content', icon: 'Home' },
+      navigation: { name: 'Контент', icon: 'Home' },
+      resourceName: 'Главная',
       actions: {
         new: { isAccessible: false },
         delete: { isAccessible: false },
         list: { isAccessible: contentEditorAccess },
         show: { isAccessible: contentEditorAccess },
         edit: { isAccessible: contentEditorAccess },
+      },
+      properties: {
+        heroTagline: { label: 'Хиро: теглайн' },
+        heroTitle: { label: 'Хиро: заголовок' },
+        heroSubtitle: { label: 'Хиро: подзаголовок' },
+        heroStatsLine: { label: 'Хиро: статистика' },
+        aboutImageUrl: { isVisible: false, label: 'Фото об авторе' },
+        aboutImageAlt: { label: 'ALT фото автора' },
+        aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
+        aboutTextShort: { label: 'Блок “Обо мне”: текст' },
+        ctaTitle: { label: 'CTA: заголовок' },
+        ctaSubtitle: { label: 'CTA: подзаголовок' },
+        ctaButtonText: { label: 'CTA: кнопка' },
       },
     },
     features: [

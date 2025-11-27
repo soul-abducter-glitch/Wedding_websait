@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { StorageService } from '../storage/storage.service.js';
 import { WeddingsQueryDto } from './dto/weddings-query.dto.js';
 import { PostsQueryDto } from './dto/posts-query.dto.js';
+import { CreatePublicReviewDto } from './dto/create-review.dto.js';
 
 type StoryWithImages = Prisma.WeddingStoryGetPayload<{
   include: { images: { orderBy: { sortOrder: 'asc' } } };
@@ -178,4 +179,20 @@ export class PublicService {
       content: post.content,
     };
   };
+
+  async createPublicReview(body: CreatePublicReviewDto) {
+    const review = await this.prisma.review.create({
+      data: {
+        names: body.names,
+        location: body.location,
+        text: body.text,
+        isVisible: true,
+      },
+    });
+
+    return {
+      id: review.id,
+      status: 'ok',
+    };
+  }
 }

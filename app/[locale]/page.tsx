@@ -8,6 +8,8 @@ import { LeadText } from "@/components/ui/lead-text"
 import { CustomButton } from "@/components/ui/custom-button"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import type { Story, Testimonial } from "@/types/content"
+import { API_BASE, getProjects, getReviews, type ApiProject, type ApiReview } from "@/lib/api"
+import { formatDisplayDate } from "@/lib/date"
 import { StoryCard } from "@/components/ui/story-card"
 import { TestimonialCard } from "@/components/ui/testimonial-card"
 import { AnimatedSection } from "@/components/ui/animated-section"
@@ -15,10 +17,6 @@ import { Hero } from "@/components/sections/hero"
 
 export const revalidate = 0
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.API_BASE_URL ||
-  "http://localhost:4000/api/v1"
 const API_ORIGIN = API_BASE.replace(/\/api.*$/, "")
 const FALLBACK_ABOUT_IMAGE = "/female-photographer.png"
 
@@ -44,8 +42,7 @@ export default async function HomePage({ params }: PageProps) {
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const stories = t.raw("stories") as Story[]
-  const featuredStories = stories.filter((story) => story.featured).slice(0, 3)
-  const testimonials = t.raw("testimonials") as Testimonial[]
+  const staticTestimonials = t.raw("testimonials") as Testimonial[]
 
   const hero = t.raw("home.hero") as {
     eyebrow: string
@@ -76,6 +73,32 @@ export default async function HomePage({ params }: PageProps) {
   }
 
   const aboutSnippet = t.raw("home.aboutSnippet") as any
+
+  let apiStories: ApiProject[] = []
+  try {
+    const response = await getProjects(locale, { limit: 6, offset: 0 })
+    apiStories = response.items
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Projects API unavailable on home, using static stories. Reason: ${reason}`)
+  }
+
+  const featuredStories =
+    apiStories.length > 0
+      ? apiStories
+          .filter((item) => item.isFeatured)
+          .slice(0, 3)
+          .map((project) => mapProjectToStory(project, locale))
+      : stories.filter((story) => story.featured).slice(0, 3)
+
+  let testimonials: Testimonial[] = staticTestimonials
+  try {
+    const apiReviews = await getReviews(locale)
+    testimonials = apiReviews.map(mapReviewToTestimonial)
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error)
+    console.warn(`Reviews API unavailable on home, using static testimonials. Reason: ${reason}`)
+  }
 
   return (
     <div className="flex flex-col">
@@ -205,7 +228,7 @@ export default async function HomePage({ params }: PageProps) {
           </AnimatedSection>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <AnimatedSection key={testimonial.coupleNames} delay={index * 0.08}>
+              <AnimatedSection key={`${testimonial.coupleNames}-${index}`} delay={index * 0.08}>
                 <TestimonialCard
                   quote={testimonial.quote}
                   coupleNames={testimonial.coupleNames}
@@ -234,4 +257,37 @@ export default async function HomePage({ params }: PageProps) {
       </Section>
     </div>
   )
+}
+
+function mapProjectToStory(project: ApiProject, locale: string): Story {
+  const preview = project.coverImageUrl || project.gallery?.[0]?.imageUrl || "/placeholder.jpg"
+  const short =
+    project.shortDescription.length > 180 ? `${project.shortDescription.slice(0, 180)}…` : project.shortDescription
+  return {
+    slug: project.slug,
+    coupleNames: project.title,
+    location: project.location,
+    date: project.date ? formatDisplayDate(project.date, locale) : "",
+    preview: normalizeImage(preview),
+    gallery: project.gallery?.map((img) => normalizeImage(img.imageUrl)) ?? [],
+    description: project.fullDescription,
+    shortDescription: short,
+    featured: project.isFeatured,
+    coverImage: normalizeImage(project.coverImageUrl),
+  }
+}
+
+function normalizeImage(url?: string | null) {
+  if (!url) return "/placeholder.jpg"
+  if (url.startsWith("/uploads")) return `${API_ORIGIN}${url}`
+  return url
+}
+
+function mapReviewToTestimonial(review: ApiReview): Testimonial {
+  return {
+    coupleNames: review.coupleNames,
+    location: review.location,
+    quote: review.text,
+    avatar: review.avatar ? normalizeImage(review.avatar) : "/placeholder-user.jpg",
+  }
 }

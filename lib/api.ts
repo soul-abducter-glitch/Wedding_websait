@@ -40,14 +40,14 @@ async function fetchJson<T>(path: string, options: FetchOptions = {}): Promise<T
 export type ApiProject = {
   id: string;
   slug: string;
-  coverImage: string;
+  coverImageUrl: string;
   title: string;
   location: string;
-  date: string;
-  description: string;
-  gallery: string[];
+  date: string | null;
+  shortDescription: string;
+  fullDescription: string;
+  gallery: { imageUrl: string; alt: string | null }[];
   isFeatured: boolean;
-  sortOrder: number;
 };
 
 export type ApiProjectsResponse = {
@@ -120,7 +120,7 @@ export async function getServices(lang: string) {
 
 export async function getReviews(lang: string) {
   const qs = lang ? `?lang=${lang}` : '';
-  return fetchJson<ApiReview[]>(`/reviews${qs}`, { revalidate: 180 });
+  return fetchJson<ApiReview[]>(`/reviews${qs}`, { cache: 'no-store' });
 }
 
 export async function getJournalPosts(params?: { limit?: number; offset?: number }) {

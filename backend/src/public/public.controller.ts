@@ -2,6 +2,8 @@ import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common
 import { PublicService } from './public.service.js';
 import { WeddingsQueryDto } from './dto/weddings-query.dto.js';
 import { PostsQueryDto } from './dto/posts-query.dto.js';
+import { Body, Post } from '@nestjs/common';
+import { CreatePublicReviewDto } from './dto/create-review.dto.js';
 
 @Controller()
 export class PublicController {
@@ -34,6 +36,11 @@ export class PublicController {
   @Get('posts')
   getPosts(@Query() query: PostsQueryDto) {
     return this.publicService.getPosts(query);
+  }
+
+  @Post('reviews/public')
+  createPublicReview(@Body() body: CreatePublicReviewDto) {
+    return this.publicService.createPublicReview(body);
   }
 
   @Get('posts/:slug')

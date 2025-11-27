@@ -12,7 +12,7 @@ import type { Story } from "@/types/content"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { LightboxGallery } from "@/components/ui/lightbox-gallery"
 import { buildAlternateLinks } from "@/lib/seo"
-import { getProject, getProjects, type ApiProject } from "@/lib/api"
+import { API_BASE, getProject, getProjects, type ApiProject } from "@/lib/api"
 import { formatDisplayDate } from "@/lib/date"
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> }
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
     return {
       title: `${project.title} - ${project.location}`,
-      description: project.description,
+      description: project.fullDescription,
       alternates: buildAlternateLinks(`/portfolio/${slug}`),
     }
   } catch {
@@ -158,18 +158,25 @@ export default async function StoryPage({ params }: PageProps) {
 }
 
 function mapProjectToStory(project: ApiProject, locale: string): Story {
-  const preview = project.coverImage || project.gallery?.[0] || "/placeholder.jpg"
-  const short = project.description.length > 180 ? `${project.description.slice(0, 180)}…` : project.description
+  const preview = project.coverImageUrl || project.gallery?.[0]?.imageUrl || "/placeholder.jpg"
+  const short =
+    project.shortDescription.length > 180 ? `${project.shortDescription.slice(0, 180)}…` : project.shortDescription
   return {
     slug: project.slug,
     coupleNames: project.title,
     location: project.location,
-    date: formatDisplayDate(project.date, locale),
-    preview,
-    gallery: project.gallery ?? [],
-    description: project.description,
+    date: project.date ? formatDisplayDate(project.date, locale) : "",
+    preview: normalizeImage(preview),
+    gallery: project.gallery?.map((img) => normalizeImage(img.imageUrl)) ?? [],
+    description: project.fullDescription,
     shortDescription: short,
     featured: project.isFeatured,
-    coverImage: project.coverImage,
+    coverImage: normalizeImage(project.coverImageUrl),
   }
+}
+
+function normalizeImage(url?: string | null) {
+  if (!url) return "/placeholder.jpg"
+  if (url.startsWith("/uploads")) return `${API_BASE.replace(/\/api.*$/, "")}${url}`
+  return url
 }

@@ -9,10 +9,12 @@ import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
 import { getReviews, type ApiReview } from "@/lib/api"
 import type { Testimonial } from "@/types/content"
+import { ReviewForm } from "@/components/forms/review-form"
 
 type PageProps = { params: Promise<{ locale: string }> }
 
-export const revalidate = 60
+export const revalidate = 0
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
@@ -27,8 +29,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ReviewsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
-  const t = await getTranslations({ locale })
-  const staticTestimonials = t.raw("testimonials") as Testimonial[]
+  const t = await getTranslations({ locale, namespace: "reviewsPage" })
+  const staticTestimonials = (await getTranslations({ locale })).raw("testimonials") as Testimonial[]
 
   let testimonials: ApiReview[] = []
   try {
@@ -51,9 +53,9 @@ export default async function ReviewsPage({ params }: PageProps) {
     <Section background="base" className="pt-12 md:pt-20">
       <Container>
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-12">
-          <Eyebrow className="mb-2">{t("reviewsPage.eyebrow")}</Eyebrow>
-          <Heading level={1}>{t("reviewsPage.heading")}</Heading>
-          <p className="text-text-muted">{t("reviewsPage.intro")}</p>
+          <Eyebrow className="mb-2">{t("eyebrow")}</Eyebrow>
+          <Heading level={1}>{t("heading")}</Heading>
+          <p className="text-text-muted">{t("intro")}</p>
         </div>
 
         {testimonials.length === 0 ? (
@@ -61,17 +63,27 @@ export default async function ReviewsPage({ params }: PageProps) {
         ) : (
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((item, index) => (
-              <AnimatedSection key={item.coupleNames} delay={index * 0.08} className="h-full">
+              <AnimatedSection key={item.id ?? `${item.coupleNames}-${index}`} delay={index * 0.08} className="h-full">
                 <TestimonialCard
                   quote={item.text}
                   coupleNames={item.coupleNames}
                   location={item.location}
-                  avatar={item.avatar}
+                  avatar={item.avatar || "/placeholder-user.jpg"}
                 />
               </AnimatedSection>
             ))}
           </div>
         )}
+
+        <div className="mt-16 max-w-3xl mx-auto">
+          <AnimatedSection>
+            <Heading level={2} className="text-center mb-4">
+              {t("form.title")}
+            </Heading>
+            <p className="text-center text-text-muted mb-8">{t("form.subtitle")}</p>
+            <ReviewForm />
+          </AnimatedSection>
+        </div>
       </Container>
     </Section>
   )
