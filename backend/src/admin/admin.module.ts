@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
+import fs from 'fs/promises';
+import path from 'path';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -319,6 +321,17 @@ const buildResources = (
         storageService: StorageService,
         configService: ConfigService,
       ) => {
+        const adminTmpDir =
+          configService.get<string>('ADMIN_JS_TMP_DIR') ?? path.join(process.cwd(), '.adminjs');
+        const componentsBundlePath = path.join(adminTmpDir, 'bundle.js');
+        process.env.ADMIN_JS_TMP_DIR = adminTmpDir;
+        // Ensure bundle file exists so /frontend/assets/components.bundle.js is served even before bundler runs.
+        await fs.mkdir(adminTmpDir, { recursive: true });
+        try {
+          await fs.access(componentsBundlePath);
+        } catch {
+          await fs.writeFile(componentsBundlePath, '// AdminJS components bundle placeholder');
+        }
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
