@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
-import { bundle } from '@adminjs/bundler';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -332,7 +331,6 @@ const buildResources = (
         return {
           adminJsOptions: {
             rootPath: '/admin',
-            
             branding: {
               companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
               withMadeWithLove: false,
