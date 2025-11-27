@@ -19,12 +19,6 @@ AdminJS.registerAdapter({
 
 const componentLoader = new ComponentLoader();
 
-const ADMIN_COMPONENTS_DIR = `../../admin-components`;
-
-const Components = {
-  Dashboard: componentLoader.add('Dashboard', `${ADMIN_COMPONENTS_DIR}/dashboard`),
-};
-
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
 const requireRole =
