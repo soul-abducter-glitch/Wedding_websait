@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
+import { bundle } from '@adminjs/bundler';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -18,6 +19,12 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
+
+const ADMIN_COMPONENTS_DIR = `../../admin-components`;
+
+const Components = {
+  Dashboard: componentLoader.add('Dashboard', `${ADMIN_COMPONENTS_DIR}/dashboard`),
+};
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -325,13 +332,16 @@ const buildResources = (
         return {
           adminJsOptions: {
             rootPath: '/admin',
-            assetsCDN: configService.get('ADMIN_ASSETS_CDN'),
+            
             branding: {
               companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
               withMadeWithLove: false,
             },
             componentLoader,
             resources: buildResources(prismaService, providerConfig, uploadFeature),
+            bundler: {
+              enabled: configService.get('NODE_ENV') === 'production',
+            },
           },
           auth: {
             authenticate: async (email: string, password: string) => {
