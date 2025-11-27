@@ -337,9 +337,6 @@ const buildResources = (
             },
             componentLoader,
             resources: buildResources(prismaService, providerConfig, uploadFeature),
-            bundler: {
-              enabled: configService.get('NODE_ENV') === 'production',
-            },
           },
           auth: {
             authenticate: async (email: string, password: string) => {
