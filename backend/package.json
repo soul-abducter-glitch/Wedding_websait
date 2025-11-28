@@ -88,6 +88,10 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
+  "overrides": {
+    "@tiptap/core": "2.27.1",
+    "@tiptap/extension-horizontal-rule": "2.27.1"
+  },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
     "extensionsToTreatAsEsm": [
