@@ -8,10 +8,22 @@ import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { join } from 'path';
+import fs from 'fs/promises';
 import bcrypt from 'bcryptjs';
 import { UserRole } from '@prisma/client';
 import { PrismaService } from './prisma/prisma.service.js';
 import { AppModule } from './app.module.js';
+
+const ensureAdminBundleDir = async (adminTmpDir: string) => {
+  const bundlePath = join(adminTmpDir, 'bundle.js');
+  await fs.mkdir(adminTmpDir, { recursive: true });
+  try {
+    await fs.access(bundlePath);
+  } catch {
+    await fs.writeFile(bundlePath, '// AdminJS components bundle placeholder');
+  }
+  return { adminTmpDir, bundlePath };
+};
 
 const ensureAdminOnBoot = async (
   app: NestExpressApplication,
@@ -78,6 +90,11 @@ async function bootstrap() {
       legacyHeaders: false,
     }),
   );
+
+  const adminTmpDir =
+    configService.get<string>('ADMIN_JS_TMP_DIR') ?? join(process.cwd(), '.adminjs');
+  await ensureAdminBundleDir(adminTmpDir);
+  app.use('/admin/frontend/assets', express.static(adminTmpDir));
 
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
