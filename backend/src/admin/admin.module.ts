@@ -323,15 +323,8 @@ const buildResources = (
       ) => {
         const adminTmpDir =
           configService.get<string>('ADMIN_JS_TMP_DIR') ?? path.join(process.cwd(), '.adminjs');
-        const componentsBundlePath = path.join(adminTmpDir, 'bundle.js');
         process.env.ADMIN_JS_TMP_DIR = adminTmpDir;
-        // Ensure bundle file exists so /frontend/assets/components.bundle.js is served even before bundler runs.
         await fs.mkdir(adminTmpDir, { recursive: true });
-        try {
-          await fs.access(componentsBundlePath);
-        } catch {
-          await fs.writeFile(componentsBundlePath, '// AdminJS components bundle placeholder');
-        }
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
