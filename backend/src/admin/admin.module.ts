@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
+import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
 import * as AdminJSPrisma from '@adminjs/prisma';
@@ -20,6 +21,36 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
+const uploadComponentsBase = [
+  'node_modules',
+  '@adminjs',
+  'upload',
+  'build',
+  'features',
+  'upload-file',
+  'components',
+];
+
+const Components = {
+  UploadEditComponent: componentLoader.add(
+    'UploadEditComponent',
+    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadEditComponent.js')),
+  ),
+  UploadListComponent: componentLoader.add(
+    'UploadListComponent',
+    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadListComponent.js')),
+  ),
+  UploadShowComponent: componentLoader.add(
+    'UploadShowComponent',
+    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadShowComponent.js')),
+  ),
+};
+
+const uploadComponents = {
+  edit: Components.UploadEditComponent,
+  list: Components.UploadListComponent,
+  show: Components.UploadShowComponent,
+};
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -135,6 +166,10 @@ const buildResources = (
         fullDescription: { type: 'richtext', label: 'Полное описание' },
         coverImageUrl: { isVisible: false, label: 'Обложка' },
         isFeatured: { label: 'В избранном' },
+        coverImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
       },
     },
     features: [
@@ -155,6 +190,10 @@ const buildResources = (
       properties: {
         weddingStoryId: { position: 1, label: 'История' },
         imageUrl: { isVisible: false, label: 'Изображение' },
+        imageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
       },
@@ -217,6 +256,10 @@ const buildResources = (
         heroSubtitle: { label: 'Хиро: подзаголовок' },
         heroStatsLine: { label: 'Хиро: статистика' },
         aboutImageUrl: { isVisible: false, label: 'Фото об авторе' },
+        aboutImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
         aboutImageAlt: { label: 'ALT фото автора' },
         aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
         aboutTextShort: { label: 'Блок “Обо мне”: текст' },
@@ -256,6 +299,10 @@ const buildResources = (
         coverImageUrl: {
           label: 'Обложка (URL)',
           isVisible: { list: false, filter: false, show: true, edit: true },
+        },
+        coverImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
         },
         content: { type: 'richtext', label: 'Текст' },
         isPublished: { label: 'Опубликовано' },
