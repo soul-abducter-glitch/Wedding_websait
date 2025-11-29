@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
+import AdminJS, { CurrentAdmin } from 'adminjs';
+import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
-import { existsSync } from 'fs';
-import { fileURLToPath } from 'url';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -15,63 +14,17 @@ import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
+import { componentLoader, Components } from './component-loader.js';
 
 AdminJS.registerAdapter({
   Resource: AdminJSPrisma.Resource,
   Database: AdminJSPrisma.Database,
 });
 
-const componentLoader = new ComponentLoader();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Locate upload components via module entry; fallback to walking up to node_modules if needed.
-const resolveUploadComponentsDir = () => {
-  try {
-    const uploadEntryUrl = new URL(import.meta.resolve('@adminjs/upload'));
-    return fileURLToPath(new URL('./features/upload-file/components/', uploadEntryUrl));
-  } catch (err) {
-    // Ignore and fallback below.
-  }
-  let dir = __dirname;
-  while (true) {
-    const candidate = path.join(
-      dir,
-      'node_modules',
-      '@adminjs',
-      'upload',
-      'build',
-      'features',
-      'upload-file',
-      'components',
-    );
-    if (existsSync(candidate)) return candidate;
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  throw new Error('Cannot find @adminjs/upload components directory');
-};
-const uploadComponentsDir = resolveUploadComponentsDir();
-const resolveUploadComponent = (filename: string) => path.join(uploadComponentsDir, filename);
-
-const Components = {
-  UploadEditComponent: componentLoader.add(
-    'UploadEditComponent',
-    resolveUploadComponent('UploadEditComponent.js'),
-  ),
-  UploadListComponent: componentLoader.add(
-    'UploadListComponent',
-    resolveUploadComponent('UploadListComponent.js'),
-  ),
-  UploadShowComponent: componentLoader.add(
-    'UploadShowComponent',
-    resolveUploadComponent('UploadShowComponent.js'),
-  ),
-};
-
 const uploadComponents = {
-  edit: Components.UploadEditComponent,
-  list: Components.UploadListComponent,
-  show: Components.UploadShowComponent,
+  edit: Components.UploadEdit,
+  list: Components.UploadList,
+  show: Components.UploadShow,
 };
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
@@ -390,6 +343,7 @@ const buildResources = (
         storageService: StorageService,
         configService: ConfigService,
       ) => {
+        const nodeEnv = configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
         const adminTmpDir =
           configService.get<string>('ADMIN_JS_TMP_DIR') ?? path.join(process.cwd(), '.adminjs');
         process.env.ADMIN_JS_TMP_DIR = adminTmpDir;
@@ -397,16 +351,21 @@ const buildResources = (
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
-        return {
-          adminJsOptions: {
-            rootPath: '/admin',
-            branding: {
-              companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
-              withMadeWithLove: false,
-            },
-            componentLoader,
-            resources: buildResources(prismaService, providerConfig, uploadFeature),
+        const adminJsOptions = {
+          rootPath: '/admin',
+          branding: {
+            companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
+            withMadeWithLove: false,
           },
+          componentLoader,
+          resources: buildResources(prismaService, providerConfig, uploadFeature),
+        };
+        if (nodeEnv === 'production') {
+          const adminJs = new AdminJS(adminJsOptions);
+          await bundle(adminJs);
+        }
+        return {
+          adminJsOptions,
           auth: {
             authenticate: async (email: string, password: string) => {
               const user = await usersService.findByEmail(email);
@@ -425,7 +384,7 @@ const buildResources = (
             secret:
               configService.get<string>('ADMIN_COOKIE_SECRET') ?? 'change-me-adminjs-cookie',
             cookie: {
-              secure: configService.get('NODE_ENV') === 'production',
+              secure: nodeEnv === 'production',
               httpOnly: true,
               sameSite: 'lax',
             },
