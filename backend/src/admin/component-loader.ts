@@ -10,11 +10,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Resolve @adminjs/upload bundled components without relying on cwd or package exports
 const resolveUploadComponentsDir = () => {
+  // Try bundled (our sources) first
+  const bundled = path.join(__dirname, 'components');
+  if (existsSync(bundled)) return bundled;
+  // Then try package assets (node_modules)
   try {
     const uploadEntryUrl = new URL(import.meta.resolve('@adminjs/upload'));
     return fileURLToPath(new URL('./features/upload-file/components/', uploadEntryUrl));
   } catch {
-    // Fallback: walk up to nearest node_modules
+    // ignore
   }
   let dir = __dirname;
   while (true) {
