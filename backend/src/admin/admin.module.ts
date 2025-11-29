@@ -7,7 +7,6 @@ import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
 import { LeadStatus, Prisma, UserRole } from '@prisma/client';
-import { createRequire } from 'module';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersModule } from '../users/users.module.js';
@@ -21,11 +20,18 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
-const require = createRequire(import.meta.url);
-// Resolve upload component paths without hitting the package "exports" field.
-const uploadPackageRoot = path.dirname(require.resolve('@adminjs/upload/package.json'));
-const resolveUploadComponent = (filename: string) =>
-  path.join(uploadPackageRoot, 'build', 'features', 'upload-file', 'components', filename);
+// Resolve upload component paths without touching package "exports".
+const uploadComponentsDir = path.resolve(
+  process.cwd(),
+  'node_modules',
+  '@adminjs',
+  'upload',
+  'build',
+  'features',
+  'upload-file',
+  'components',
+);
+const resolveUploadComponent = (filename: string) => path.join(uploadComponentsDir, filename);
 
 const Components = {
   UploadEditComponent: componentLoader.add(
