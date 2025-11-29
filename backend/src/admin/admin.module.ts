@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
 import fs from 'fs/promises';
-import { existsSync } from 'fs';
 import path from 'path';
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
@@ -23,8 +23,14 @@ AdminJS.registerAdapter({
 
 const componentLoader = new ComponentLoader();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Locate upload components by walking up to the nearest node_modules.
+// Locate upload components via module entry; fallback to walking up to node_modules if needed.
 const resolveUploadComponentsDir = () => {
+  try {
+    const uploadEntryUrl = new URL(import.meta.resolve('@adminjs/upload'));
+    return fileURLToPath(new URL('./features/upload-file/components/', uploadEntryUrl));
+  } catch (err) {
+    // Ignore and fallback below.
+  }
   let dir = __dirname;
   while (true) {
     const candidate = path.join(
