@@ -7,7 +7,6 @@ import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
 import { LeadStatus, Prisma, UserRole } from '@prisma/client';
-import { componentLoader, Components } from './component-loader.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersModule } from '../users/users.module.js';
@@ -44,26 +43,6 @@ const hashPassword = async (request: Record<string, any>) => {
 
 const safeFilename = (filename?: string) =>
   filename?.replace(/[^a-z0-9._-]/gi, '_') ?? 'file';
-
-const createUploadFeature = (
-  uploadFeatureImpl: (options: any) => any,
-  config: { key: string; folder: string; provider: StorageProviderConfig },
-) =>
-  uploadFeatureImpl({
-    componentLoader,
-    provider: config.provider,
-    properties: {
-      key: config.key,
-      file: `${config.key}File`,
-      filePath: `${config.key}Path`,
-      filesToDelete: `${config.key}FilesToDelete`,
-    },
-    validation: IMAGE_VALIDATION,
-    uploadPath: (record: any, filename: string) => {
-      const recordId = record?.params?.id ?? record?.id?.() ?? 'new';
-      return `${config.folder}/${recordId}/${Date.now()}-${safeFilename(filename)}`;
-    },
-  });
 
 const buildResources = (
   prisma: PrismaService,
@@ -127,24 +106,10 @@ const buildResources = (
           label: 'Обложка (URL)',
           isVisible: { list: false, filter: false, show: true, edit: true },
         },
-        coverImageUrlFile: {
-          components: {
-            edit: Components.UploadEdit,
-            list: Components.UploadList,
-            show: Components.UploadShow,
-          },
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
         isFeatured: { label: 'В избранном' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'weddings/cover',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const weddingImageResource = {
@@ -159,14 +124,6 @@ const buildResources = (
           isVisible: { list: false, filter: false, show: true, edit: true },
           label: 'Изображение (URL)',
         },
-        imageUrlFile: {
-          components: {
-            edit: Components.UploadEdit,
-            list: Components.UploadList,
-            show: Components.UploadShow,
-          },
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
       },
@@ -178,13 +135,7 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'imageUrl',
-        folder: 'weddings/gallery',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const reviewResource = {
@@ -232,14 +183,6 @@ const buildResources = (
           isVisible: { list: false, filter: false, show: true, edit: true },
           label: 'Фото об авторе (URL)',
         },
-        aboutImageUrlFile: {
-          components: {
-            edit: Components.UploadEdit,
-            list: Components.UploadList,
-            show: Components.UploadShow,
-          },
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
         aboutImageAlt: { label: 'ALT фото автора' },
         aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
         aboutTextShort: { label: 'Блок “Обо мне”: текст' },
@@ -248,13 +191,7 @@ const buildResources = (
         ctaButtonText: { label: 'CTA: кнопка' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'aboutImageUrl',
-        folder: 'homepage/about',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const blogPostResource = {
@@ -280,14 +217,6 @@ const buildResources = (
           label: 'Обложка (URL)',
           isVisible: { list: false, filter: false, show: true, edit: true },
         },
-        coverImageUrlFile: {
-          components: {
-            edit: Components.UploadEdit,
-            list: Components.UploadList,
-            show: Components.UploadShow,
-          },
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
         content: { type: 'richtext', label: 'Текст' },
         isPublished: { label: 'Опубликовано' },
         publishedAt: { label: 'Дата публикации' },
@@ -295,13 +224,7 @@ const buildResources = (
         seoDescription: { label: 'SEO описание', type: 'textarea' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'blog/covers',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const leadResource = {
@@ -372,17 +295,11 @@ const buildResources = (
             companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
             withMadeWithLove: false,
           },
-          componentLoader,
           assets: {
             styles: [],
-            scripts: [
-              '/admin/global.bundle.js',
-              '/admin/app.bundle.js',
-              '/admin/design-system.bundle.js',
-              '/admin/components.bundle.js',
-            ],
+            scripts: [],
           },
-          preventBundling: true, // use pre-built bundles, avoid runtime bundling on read-only FS
+          preventBundling: false,
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
         return {
