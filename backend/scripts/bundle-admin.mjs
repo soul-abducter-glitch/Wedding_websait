@@ -1,18 +1,20 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { existsSync } from 'fs';
 import { bundle } from '@adminjs/bundler';
 import { ComponentLoader } from 'adminjs';
+import { existsSync } from 'fs';
 
+// Recreate component loader setup (same logic as src/admin/component-loader.ts but inline for bundling).
 const componentLoader = new ComponentLoader();
 
 const resolveUploadComponentsDir = () => {
-  const projectRoot = process.cwd();
-  const local = path.join(projectRoot, 'src', 'admin', 'components');
+  // Try local compiled components (if any)
+  const local = path.join(process.cwd(), 'src', 'admin', 'components');
   if (existsSync(local)) return local;
 
-  const pkg = path.join(
-    projectRoot,
+  // Try node_modules layout
+  const candidate = path.join(
+    process.cwd(),
     'node_modules',
     '@adminjs',
     'upload',
@@ -21,16 +23,16 @@ const resolveUploadComponentsDir = () => {
     'upload-file',
     'components',
   );
-  if (existsSync(pkg)) return pkg;
+  if (existsSync(candidate)) return candidate;
 
   throw new Error('Cannot resolve @adminjs/upload components directory for bundling');
 };
 
-const uploadDir = resolveUploadComponentsDir();
+const uploadComponentsDir = resolveUploadComponentsDir();
 
-componentLoader.add('UploadEditComponent', path.join(uploadDir, 'UploadEditComponent.js'));
-componentLoader.add('UploadListComponent', path.join(uploadDir, 'UploadListComponent.js'));
-componentLoader.add('UploadShowComponent', path.join(uploadDir, 'UploadShowComponent.js'));
+componentLoader.add('UploadEditComponent', path.join(uploadComponentsDir, 'UploadEditComponent.js'));
+componentLoader.add('UploadListComponent', path.join(uploadComponentsDir, 'UploadListComponent.js'));
+componentLoader.add('UploadShowComponent', path.join(uploadComponentsDir, 'UploadShowComponent.js'));
 
 const destinationDir = path.join('public', 'admin');
 await fs.mkdir(path.join(process.cwd(), destinationDir), { recursive: true });

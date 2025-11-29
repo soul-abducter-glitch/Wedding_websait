@@ -1,25 +1,19 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { CurrentAdmin } from 'adminjs';
-import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
 import { LeadStatus, Prisma, UserRole } from '@prisma/client';
+import { componentLoader, Components } from './component-loader.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
-import { componentLoader } from './component-loader.js';
-
-AdminJS.registerAdapter({
-  Resource: AdminJSPrisma.Resource,
-  Database: AdminJSPrisma.Database,
-});
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -53,11 +47,7 @@ const safeFilename = (filename?: string) =>
 
 const createUploadFeature = (
   uploadFeatureImpl: (options: any) => any,
-  config: {
-  key: string;
-  folder: string;
-  provider: StorageProviderConfig;
-},
+  config: { key: string; folder: string; provider: StorageProviderConfig },
 ) =>
   uploadFeatureImpl({
     componentLoader,
@@ -78,7 +68,7 @@ const createUploadFeature = (
 const buildResources = (
   prisma: PrismaService,
   provider: StorageProviderConfig,
-  uploadFeatureImpl: (options: any) => any,
+  uploadFeatureImpl: (options: any) => any, // kept for signature compatibility
 ) => {
   const getModel = (name: Prisma.ModelName) => {
     const model = Prisma.dmmf.datamodel.models.find((m) => m.name === name);
@@ -116,8 +106,8 @@ const buildResources = (
   const weddingStoryResource = {
     resource: { model: getModel('WeddingStory'), client: prisma },
     options: {
-      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Document' },
-      resourceName: '╨Ш╤Б╤В╨╛╤А╨╕╨╕',
+      navigation: { name: 'Контент', icon: 'Document' },
+      resourceName: 'Истории',
       listProperties: ['title', 'location', 'date', 'isFeatured'],
       filterProperties: ['location', 'isFeatured', 'date', 'title'],
       actions: {
@@ -128,27 +118,55 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        title: { label: '╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        location: { label: '╨Ы╨╛╨║╨░╤Ж╨╕╤П' },
-        date: { label: '╨Ф╨░╤В╨░' },
-        shortDescription: { label: '╨Ъ╨╛╤А╨╛╤В╨║╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
-        fullDescription: { type: 'richtext', label: '╨Я╨╛╨╗╨╜╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡' },
-        coverImageUrl: { label: 'Обложка', isVisible: { list: false, filter: false, show: true, edit: true } },
-        isFeatured: { label: '╨Т ╨╕╨╖╨▒╤А╨░╨╜╨╜╨╛╨╝' },
+        title: { label: 'Заголовок' },
+        location: { label: 'Локация' },
+        date: { label: 'Дата' },
+        shortDescription: { label: 'Короткое описание', type: 'textarea' },
+        fullDescription: { type: 'richtext', label: 'Полное описание' },
+        coverImageUrl: {
+          label: 'Обложка (URL)',
+          isVisible: { list: false, filter: false, show: true, edit: true },
+        },
+        coverImageUrlFile: {
+          components: {
+            edit: Components.UploadEdit,
+            list: Components.UploadList,
+            show: Components.UploadShow,
+          },
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
+        isFeatured: { label: 'В избранном' },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'weddings/cover',
+        provider,
+      }),
+    ],
   };
 
   const weddingImageResource = {
     resource: { model: getModel('WeddingImage'), client: prisma },
     options: {
-      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Image' },
-      resourceName: '╨У╨░╨╗╨╡╤А╨╡╤П',
+      navigation: { name: 'Контент', icon: 'Image' },
+      resourceName: 'Галерея',
       sort: { direction: 'asc', sortBy: 'sortOrder' },
       properties: {
         weddingStoryId: { position: 1, label: 'История' },
-        imageUrl: { isVisible: { list: false, filter: false, show: true, edit: true }, label: 'Изображение' },
+        imageUrl: {
+          isVisible: { list: false, filter: false, show: true, edit: true },
+          label: 'Изображение (URL)',
+        },
+        imageUrlFile: {
+          components: {
+            edit: Components.UploadEdit,
+            list: Components.UploadList,
+            show: Components.UploadShow,
+          },
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
       },
@@ -160,14 +178,20 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'imageUrl',
+        folder: 'weddings/gallery',
+        provider,
+      }),
+    ],
   };
 
   const reviewResource = {
     resource: { model: getModel('Review'), client: prisma },
     options: {
-      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Chat' },
-      resourceName: '╨Ю╤В╨╖╤Л╨▓╤Л',
+      navigation: { name: 'Контент', icon: 'Chat' },
+      resourceName: 'Отзывы',
       listProperties: ['names', 'location', 'isVisible', 'createdAt'],
       filterProperties: ['isVisible'],
       actions: {
@@ -178,11 +202,11 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        names: { label: '╨Ш╨╝╨╡╨╜╨░ ╨┐╨░╤А╤Л' },
-        location: { label: '╨Ы╨╛╨║╨░╤Ж╨╕╤П' },
-        text: { label: '╨в╨╡╨║╤Б╤В ╨╛╤В╨╖╤Л╨▓╨░', type: 'textarea' },
-        isVisible: { label: '╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨╜╨░ ╤Б╨░╨╣╤В╨╡' },
-        createdAt: { label: '╨б╨╛╨╖╨┤╨░╨╜' },
+        names: { label: 'Имена пары' },
+        location: { label: 'Локация' },
+        text: { label: 'Текст отзыва', type: 'textarea' },
+        isVisible: { label: 'Показывать на сайте' },
+        createdAt: { label: 'Создан' },
       },
     },
   };
@@ -190,8 +214,8 @@ const buildResources = (
   const homepageResource = {
     resource: { model: getModel('HomepageContent'), client: prisma },
     options: {
-      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Home' },
-      resourceName: '╨У╨╗╨░╨▓╨╜╨░╤П',
+      navigation: { name: 'Контент', icon: 'Home' },
+      resourceName: 'Главная',
       actions: {
         new: { isAccessible: false },
         delete: { isAccessible: false },
@@ -200,27 +224,44 @@ const buildResources = (
         edit: { isAccessible: contentEditorAccess },
       },
       properties: {
-        heroTagline: { label: '╨е╨╕╤А╨╛: ╤В╨╡╨│╨╗╨░╨╣╨╜' },
-        heroTitle: { label: '╨е╨╕╤А╨╛: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        heroSubtitle: { label: '╨е╨╕╤А╨╛: ╨┐╨╛╨┤╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        heroStatsLine: { label: '╨е╨╕╤А╨╛: ╤Б╤В╨░╤В╨╕╤Б╤В╨╕╨║╨░' },
-        aboutImageUrl: { isVisible: { list: false, filter: false, show: true, edit: true }, label: 'Фото об авторе' },
-        aboutImageAlt: { label: 'ALT ╤Д╨╛╤В╨╛ ╨░╨▓╤В╨╛╤А╨░' },
-        aboutTitle: { label: '╨С╨╗╨╛╨║ тАЬ╨Ю╨▒╨╛ ╨╝╨╜╨╡тАЭ: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        aboutTextShort: { label: '╨С╨╗╨╛╨║ тАЬ╨Ю╨▒╨╛ ╨╝╨╜╨╡тАЭ: ╤В╨╡╨║╤Б╤В' },
-        ctaTitle: { label: 'CTA: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        ctaSubtitle: { label: 'CTA: ╨┐╨╛╨┤╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        ctaButtonText: { label: 'CTA: ╨║╨╜╨╛╨┐╨║╨░' },
+        heroTagline: { label: 'Хиро: теглайн' },
+        heroTitle: { label: 'Хиро: заголовок' },
+        heroSubtitle: { label: 'Хиро: подзаголовок' },
+        heroStatsLine: { label: 'Хиро: статистика' },
+        aboutImageUrl: {
+          isVisible: { list: false, filter: false, show: true, edit: true },
+          label: 'Фото об авторе (URL)',
+        },
+        aboutImageUrlFile: {
+          components: {
+            edit: Components.UploadEdit,
+            list: Components.UploadList,
+            show: Components.UploadShow,
+          },
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
+        aboutImageAlt: { label: 'ALT фото автора' },
+        aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
+        aboutTextShort: { label: 'Блок “Обо мне”: текст' },
+        ctaTitle: { label: 'CTA: заголовок' },
+        ctaSubtitle: { label: 'CTA: подзаголовок' },
+        ctaButtonText: { label: 'CTA: кнопка' },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'aboutImageUrl',
+        folder: 'homepage/about',
+        provider,
+      }),
+    ],
   };
 
   const blogPostResource = {
     resource: { model: getModel('BlogPost'), client: prisma },
     options: {
-      navigation: { name: '╨Ц╤Г╤А╨╜╨░╨╗', icon: 'Article' },
-      id: '╨Ц╤Г╤А╨╜╨░╨╗╤Л',
+      navigation: { name: 'Журнал', icon: 'Article' },
+      id: 'Журналы',
       sort: { sortBy: 'publishedAt', direction: 'desc' },
       listProperties: ['title', 'slug', 'publishedAt', 'isPublished'],
       filterProperties: ['isPublished', 'publishedAt', 'slug'],
@@ -232,21 +273,35 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        title: { label: '╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        slug: { label: '╨б╤Б╤Л╨╗╨║╨░ (slug)' },
-        excerpt: { label: '╨Ъ╨╛╤А╨╛╤В╨║╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
+        title: { label: 'Заголовок' },
+        slug: { label: 'Ссылка (slug)' },
+        excerpt: { label: 'Короткое описание', type: 'textarea' },
         coverImageUrl: {
-          label: '╨Ю╨▒╨╗╨╛╨╢╨║╨░ (URL)',
+          label: 'Обложка (URL)',
           isVisible: { list: false, filter: false, show: true, edit: true },
         },
-        content: { type: 'richtext', label: '╨в╨╡╨║╤Б╤В' },
-        isPublished: { label: '╨Ю╨┐╤Г╨▒╨╗╨╕╨║╨╛╨▓╨░╨╜╨╛' },
-        publishedAt: { label: '╨Ф╨░╤В╨░ ╨┐╤Г╨▒╨╗╨╕╨║╨░╤Ж╨╕╨╕' },
-        seoTitle: { label: 'SEO ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
-        seoDescription: { label: 'SEO ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
+        coverImageUrlFile: {
+          components: {
+            edit: Components.UploadEdit,
+            list: Components.UploadList,
+            show: Components.UploadShow,
+          },
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
+        content: { type: 'richtext', label: 'Текст' },
+        isPublished: { label: 'Опубликовано' },
+        publishedAt: { label: 'Дата публикации' },
+        seoTitle: { label: 'SEO заголовок' },
+        seoDescription: { label: 'SEO описание', type: 'textarea' },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'blog/covers',
+        provider,
+      }),
+    ],
   };
 
   const leadResource = {
@@ -305,6 +360,12 @@ const buildResources = (
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
+
+        AdminJS.registerAdapter({
+          Resource: AdminJSPrisma.Resource,
+          Database: AdminJSPrisma.Database,
+        });
+
         const adminJsOptions = {
           rootPath: '/admin',
           branding: {
@@ -314,9 +375,14 @@ const buildResources = (
           componentLoader,
           assets: {
             styles: [],
-            scripts: ['/admin/global.bundle.js', '/admin/components.bundle.js'],
+            scripts: [
+              '/admin/global.bundle.js',
+              '/admin/app.bundle.js',
+              '/admin/design-system.bundle.js',
+              '/admin/components.bundle.js',
+            ],
           },
-          preventBundling: nodeEnv === 'production',
+          preventBundling: true, // use pre-built bundles, avoid runtime bundling on read-only FS
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
         return {
@@ -350,11 +416,3 @@ const buildResources = (
   ],
 })
 export class AdminModule {}
-
-
-
-
-
-
-
-
