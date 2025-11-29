@@ -67,6 +67,8 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
+  // Serve prebuilt AdminJS assets (bundled locally to public/admin)
+  app.use('/admin', express.static(join(process.cwd(), 'public', 'admin')));
 
   const windowMs = Number(configService.get<string>('RATE_LIMIT_WINDOW_MS')) || 60 * 1000;
   const max = Number(configService.get<string>('RATE_LIMIT_MAX')) || 100;

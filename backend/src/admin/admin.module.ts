@@ -373,8 +373,16 @@ const buildResources = (
             withMadeWithLove: false,
           },
           componentLoader,
-          assets: { styles: [], scripts: [] },
-          preventBundling: false, // force bundling so custom components land in the build
+          assets: {
+            styles: [],
+            scripts: [
+              '/admin/global.bundle.js',
+              '/admin/app.bundle.js',
+              '/admin/design-system.bundle.js',
+              '/admin/components.bundle.js',
+            ],
+          },
+          preventBundling: true, // use pre-built bundles, avoid runtime bundling on read-only FS
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
         return {
