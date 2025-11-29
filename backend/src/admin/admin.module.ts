@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
 import fs from 'fs/promises';
 import path from 'path';
+import { createRequire } from 'module';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -20,12 +21,11 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
+const require = createRequire(import.meta.url);
 // Resolve upload component paths without touching package "exports".
-const uploadComponentsDir = path.resolve(
-  process.cwd(),
-  'node_modules',
-  '@adminjs',
-  'upload',
+const uploadPkgJsonPath = require.resolve('@adminjs/upload/package.json');
+const uploadComponentsDir = path.join(
+  path.dirname(uploadPkgJsonPath),
   'build',
   'features',
   'upload-file',
