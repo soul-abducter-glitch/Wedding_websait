@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { CurrentAdmin } from 'adminjs';
 import { bundle } from '@adminjs/bundler';
@@ -14,18 +14,12 @@ import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
-import { componentLoader, Components } from './component-loader.js';
+import { componentLoader } from './component-loader.js';
 
 AdminJS.registerAdapter({
   Resource: AdminJSPrisma.Resource,
   Database: AdminJSPrisma.Database,
 });
-
-const uploadComponents = {
-  edit: Components.UploadEdit,
-  list: Components.UploadList,
-  show: Components.UploadShow,
-};
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -122,8 +116,8 @@ const buildResources = (
   const weddingStoryResource = {
     resource: { model: getModel('WeddingStory'), client: prisma },
     options: {
-      navigation: { name: 'Контент', icon: 'Document' },
-      resourceName: 'Истории',
+      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Document' },
+      resourceName: '╨Ш╤Б╤В╨╛╤А╨╕╨╕',
       listProperties: ['title', 'location', 'date', 'isFeatured'],
       filterProperties: ['location', 'isFeatured', 'date', 'title'],
       actions: {
@@ -134,41 +128,27 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        title: { label: 'Заголовок' },
-        location: { label: 'Локация' },
-        date: { label: 'Дата' },
-        shortDescription: { label: 'Короткое описание', type: 'textarea' },
-        fullDescription: { type: 'richtext', label: 'Полное описание' },
-        coverImageUrl: { isVisible: false, label: 'Обложка' },
-        isFeatured: { label: 'В избранном' },
-        coverImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
+        title: { label: '╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        location: { label: '╨Ы╨╛╨║╨░╤Ж╨╕╤П' },
+        date: { label: '╨Ф╨░╤В╨░' },
+        shortDescription: { label: '╨Ъ╨╛╤А╨╛╤В╨║╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
+        fullDescription: { type: 'richtext', label: '╨Я╨╛╨╗╨╜╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡' },
+        coverImageUrl: { label: 'Обложка', isVisible: { list: false, filter: false, show: true, edit: true } },
+        isFeatured: { label: '╨Т ╨╕╨╖╨▒╤А╨░╨╜╨╜╨╛╨╝' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'weddings/cover',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const weddingImageResource = {
     resource: { model: getModel('WeddingImage'), client: prisma },
     options: {
-      navigation: { name: 'Контент', icon: 'Image' },
-      resourceName: 'Галерея',
+      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Image' },
+      resourceName: '╨У╨░╨╗╨╡╤А╨╡╤П',
       sort: { direction: 'asc', sortBy: 'sortOrder' },
       properties: {
         weddingStoryId: { position: 1, label: 'История' },
-        imageUrl: { isVisible: false, label: 'Изображение' },
-        imageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
+        imageUrl: { isVisible: { list: false, filter: false, show: true, edit: true }, label: 'Изображение' },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
       },
@@ -180,20 +160,14 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'imageUrl',
-        folder: 'weddings/gallery',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const reviewResource = {
     resource: { model: getModel('Review'), client: prisma },
     options: {
-      navigation: { name: 'Контент', icon: 'Chat' },
-      resourceName: 'Отзывы',
+      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Chat' },
+      resourceName: '╨Ю╤В╨╖╤Л╨▓╤Л',
       listProperties: ['names', 'location', 'isVisible', 'createdAt'],
       filterProperties: ['isVisible'],
       actions: {
@@ -204,11 +178,11 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        names: { label: 'Имена пары' },
-        location: { label: 'Локация' },
-        text: { label: 'Текст отзыва', type: 'textarea' },
-        isVisible: { label: 'Показывать на сайте' },
-        createdAt: { label: 'Создан' },
+        names: { label: '╨Ш╨╝╨╡╨╜╨░ ╨┐╨░╤А╤Л' },
+        location: { label: '╨Ы╨╛╨║╨░╤Ж╨╕╤П' },
+        text: { label: '╨в╨╡╨║╤Б╤В ╨╛╤В╨╖╤Л╨▓╨░', type: 'textarea' },
+        isVisible: { label: '╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨╜╨░ ╤Б╨░╨╣╤В╨╡' },
+        createdAt: { label: '╨б╨╛╨╖╨┤╨░╨╜' },
       },
     },
   };
@@ -216,8 +190,8 @@ const buildResources = (
   const homepageResource = {
     resource: { model: getModel('HomepageContent'), client: prisma },
     options: {
-      navigation: { name: 'Контент', icon: 'Home' },
-      resourceName: 'Главная',
+      navigation: { name: '╨Ъ╨╛╨╜╤В╨╡╨╜╤В', icon: 'Home' },
+      resourceName: '╨У╨╗╨░╨▓╨╜╨░╤П',
       actions: {
         new: { isAccessible: false },
         delete: { isAccessible: false },
@@ -226,37 +200,27 @@ const buildResources = (
         edit: { isAccessible: contentEditorAccess },
       },
       properties: {
-        heroTagline: { label: 'Хиро: теглайн' },
-        heroTitle: { label: 'Хиро: заголовок' },
-        heroSubtitle: { label: 'Хиро: подзаголовок' },
-        heroStatsLine: { label: 'Хиро: статистика' },
-        aboutImageUrl: { isVisible: false, label: 'Фото об авторе' },
-        aboutImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
-        aboutImageAlt: { label: 'ALT фото автора' },
-        aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
-        aboutTextShort: { label: 'Блок “Обо мне”: текст' },
-        ctaTitle: { label: 'CTA: заголовок' },
-        ctaSubtitle: { label: 'CTA: подзаголовок' },
-        ctaButtonText: { label: 'CTA: кнопка' },
+        heroTagline: { label: '╨е╨╕╤А╨╛: ╤В╨╡╨│╨╗╨░╨╣╨╜' },
+        heroTitle: { label: '╨е╨╕╤А╨╛: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        heroSubtitle: { label: '╨е╨╕╤А╨╛: ╨┐╨╛╨┤╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        heroStatsLine: { label: '╨е╨╕╤А╨╛: ╤Б╤В╨░╤В╨╕╤Б╤В╨╕╨║╨░' },
+        aboutImageUrl: { isVisible: { list: false, filter: false, show: true, edit: true }, label: 'Фото об авторе' },
+        aboutImageAlt: { label: 'ALT ╤Д╨╛╤В╨╛ ╨░╨▓╤В╨╛╤А╨░' },
+        aboutTitle: { label: '╨С╨╗╨╛╨║ тАЬ╨Ю╨▒╨╛ ╨╝╨╜╨╡тАЭ: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        aboutTextShort: { label: '╨С╨╗╨╛╨║ тАЬ╨Ю╨▒╨╛ ╨╝╨╜╨╡тАЭ: ╤В╨╡╨║╤Б╤В' },
+        ctaTitle: { label: 'CTA: ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        ctaSubtitle: { label: 'CTA: ╨┐╨╛╨┤╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        ctaButtonText: { label: 'CTA: ╨║╨╜╨╛╨┐╨║╨░' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'aboutImageUrl',
-        folder: 'homepage/about',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const blogPostResource = {
     resource: { model: getModel('BlogPost'), client: prisma },
     options: {
-      navigation: { name: 'Журнал', icon: 'Article' },
-      id: 'Журналы',
+      navigation: { name: '╨Ц╤Г╤А╨╜╨░╨╗', icon: 'Article' },
+      id: '╨Ц╤Г╤А╨╜╨░╨╗╤Л',
       sort: { sortBy: 'publishedAt', direction: 'desc' },
       listProperties: ['title', 'slug', 'publishedAt', 'isPublished'],
       filterProperties: ['isPublished', 'publishedAt', 'slug'],
@@ -268,31 +232,21 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
       properties: {
-        title: { label: 'Заголовок' },
-        slug: { label: 'Ссылка (slug)' },
-        excerpt: { label: 'Короткое описание', type: 'textarea' },
+        title: { label: '╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        slug: { label: '╨б╤Б╤Л╨╗╨║╨░ (slug)' },
+        excerpt: { label: '╨Ъ╨╛╤А╨╛╤В╨║╨╛╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
         coverImageUrl: {
-          label: 'Обложка (URL)',
+          label: '╨Ю╨▒╨╗╨╛╨╢╨║╨░ (URL)',
           isVisible: { list: false, filter: false, show: true, edit: true },
         },
-        coverImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
-        },
-        content: { type: 'richtext', label: 'Текст' },
-        isPublished: { label: 'Опубликовано' },
-        publishedAt: { label: 'Дата публикации' },
-        seoTitle: { label: 'SEO заголовок' },
-        seoDescription: { label: 'SEO описание', type: 'textarea' },
+        content: { type: 'richtext', label: '╨в╨╡╨║╤Б╤В' },
+        isPublished: { label: '╨Ю╨┐╤Г╨▒╨╗╨╕╨║╨╛╨▓╨░╨╜╨╛' },
+        publishedAt: { label: '╨Ф╨░╤В╨░ ╨┐╤Г╨▒╨╗╨╕╨║╨░╤Ж╨╕╨╕' },
+        seoTitle: { label: 'SEO ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║' },
+        seoDescription: { label: 'SEO ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡', type: 'textarea' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'blog/covers',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const leadResource = {
@@ -398,3 +352,11 @@ const buildResources = (
   ],
 })
 export class AdminModule {}
+
+
+
+
+
+
+
+
