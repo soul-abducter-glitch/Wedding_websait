@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
-import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
 import * as AdminJSPrisma from '@adminjs/prisma';
@@ -34,15 +33,15 @@ const uploadComponentsBase = [
 const Components = {
   UploadEditComponent: componentLoader.add(
     'UploadEditComponent',
-    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadEditComponent.js')),
+    path.join(process.cwd(), ...uploadComponentsBase, 'UploadEditComponent.js'),
   ),
   UploadListComponent: componentLoader.add(
     'UploadListComponent',
-    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadListComponent.js')),
+    path.join(process.cwd(), ...uploadComponentsBase, 'UploadListComponent.js'),
   ),
   UploadShowComponent: componentLoader.add(
     'UploadShowComponent',
-    bundle(path.join(process.cwd(), ...uploadComponentsBase, 'UploadShowComponent.js')),
+    path.join(process.cwd(), ...uploadComponentsBase, 'UploadShowComponent.js'),
   ),
 };
 
