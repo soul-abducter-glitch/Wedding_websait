@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { CurrentAdmin } from 'adminjs';
-import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
-import os from 'os';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -15,18 +13,6 @@ import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
-import { componentLoader, Components } from './component-loader.js';
-
-AdminJS.registerAdapter({
-  Resource: AdminJSPrisma.Resource,
-  Database: AdminJSPrisma.Database,
-});
-
-const uploadComponents = {
-  edit: Components.UploadEdit,
-  list: Components.UploadList,
-  show: Components.UploadShow,
-};
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -58,34 +44,10 @@ const hashPassword = async (request: Record<string, any>) => {
 const safeFilename = (filename?: string) =>
   filename?.replace(/[^a-z0-9._-]/gi, '_') ?? 'file';
 
-const createUploadFeature = (
-  uploadFeatureImpl: (options: any) => any,
-  config: {
-    key: string;
-    folder: string;
-    provider: StorageProviderConfig;
-  },
-) =>
-  uploadFeatureImpl({
-    componentLoader,
-    provider: config.provider,
-    properties: {
-      key: config.key,
-      file: `${config.key}File`,
-      filePath: `${config.key}Path`,
-      filesToDelete: `${config.key}FilesToDelete`,
-    },
-    validation: IMAGE_VALIDATION,
-    uploadPath: (record: any, filename: string) => {
-      const recordId = record?.params?.id ?? record?.id?.() ?? 'new';
-      return `${config.folder}/${recordId}/${Date.now()}-${safeFilename(filename)}`;
-    },
-  });
-
 const buildResources = (
   prisma: PrismaService,
   provider: StorageProviderConfig,
-  uploadFeatureImpl: (options: any) => any,
+  uploadFeatureImpl: (options: any) => any, // kept for signature compatibility
 ) => {
   const getModel = (name: Prisma.ModelName) => {
     const model = Prisma.dmmf.datamodel.models.find((m) => m.name === name);
@@ -140,21 +102,14 @@ const buildResources = (
         date: { label: 'Дата' },
         shortDescription: { label: 'Короткое описание', type: 'textarea' },
         fullDescription: { type: 'richtext', label: 'Полное описание' },
-        coverImageUrl: { label: 'Обложка', isVisible: false },
-        isFeatured: { label: 'В избранном' },
-        coverImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
+        coverImageUrl: {
+          label: 'Обложка (URL)',
+          isVisible: { list: false, filter: false, show: true, edit: true },
         },
+        isFeatured: { label: 'В избранном' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'weddings/cover',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const weddingImageResource = {
@@ -165,10 +120,9 @@ const buildResources = (
       sort: { direction: 'asc', sortBy: 'sortOrder' },
       properties: {
         weddingStoryId: { position: 1, label: 'История' },
-        imageUrl: { isVisible: false, label: 'Изображение' },
-        imageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
+        imageUrl: {
+          isVisible: { list: false, filter: false, show: true, edit: true },
+          label: 'Изображение (URL)',
         },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
@@ -181,13 +135,7 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'imageUrl',
-        folder: 'weddings/gallery',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const reviewResource = {
@@ -231,10 +179,9 @@ const buildResources = (
         heroTitle: { label: 'Хиро: заголовок' },
         heroSubtitle: { label: 'Хиро: подзаголовок' },
         heroStatsLine: { label: 'Хиро: статистика' },
-        aboutImageUrl: { isVisible: false, label: 'Фото об авторе' },
-        aboutImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
+        aboutImageUrl: {
+          isVisible: { list: false, filter: false, show: true, edit: true },
+          label: 'Фото об авторе (URL)',
         },
         aboutImageAlt: { label: 'ALT фото автора' },
         aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
@@ -244,13 +191,7 @@ const buildResources = (
         ctaButtonText: { label: 'CTA: кнопка' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'aboutImageUrl',
-        folder: 'homepage/about',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const blogPostResource = {
@@ -272,10 +213,9 @@ const buildResources = (
         title: { label: 'Заголовок' },
         slug: { label: 'Ссылка (slug)' },
         excerpt: { label: 'Короткое описание', type: 'textarea' },
-        coverImageUrl: { label: 'Обложка (URL)', isVisible: false },
-        coverImageUrlFile: {
-          components: uploadComponents,
-          isVisible: { list: false, filter: false, show: false, edit: true },
+        coverImageUrl: {
+          label: 'Обложка (URL)',
+          isVisible: { list: false, filter: false, show: true, edit: true },
         },
         content: { type: 'richtext', label: 'Текст' },
         isPublished: { label: 'Опубликовано' },
@@ -284,13 +224,7 @@ const buildResources = (
         seoDescription: { label: 'SEO описание', type: 'textarea' },
       },
     },
-    features: [
-      createUploadFeature(uploadFeatureImpl, {
-        key: 'coverImageUrl',
-        folder: 'blog/covers',
-        provider,
-      }),
-    ],
+    features: [],
   };
 
   const leadResource = {
@@ -343,28 +277,21 @@ const buildResources = (
       ) => {
         const nodeEnv = configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
         const adminTmpDir =
-          configService.get<string>('ADMIN_JS_TMP_DIR') ??
-          path.join(os.tmpdir(), 'adminjs'); // writable in containers
+          configService.get<string>('ADMIN_JS_TMP_DIR') ?? path.join(process.cwd(), '.adminjs');
         process.env.ADMIN_JS_TMP_DIR = adminTmpDir;
-        process.env.ADMIN_JS_SKIP_BUNDLE = 'false'; // force bundling
         await fs.mkdir(adminTmpDir, { recursive: true });
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
-        // Force bundling on every start in production to ensure custom components are available.
-        if (nodeEnv === 'production') {
-          await bundle({
-            destinationDir: adminTmpDir,
-            componentLoader,
-          });
-        }
         const adminJsOptions = {
           rootPath: '/admin',
           branding: {
             companyName: configService.get('ADMIN_BRAND_NAME') ?? 'Wedding CMS',
             withMadeWithLove: false,
           },
-          componentLoader,
+          componentLoader: undefined, // no custom components in use
+          assets: { styles: [], scripts: [] },
+          preventBundling: true,
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
         return {
