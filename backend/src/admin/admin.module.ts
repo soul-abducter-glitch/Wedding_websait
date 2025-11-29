@@ -14,7 +14,7 @@ import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
-import { componentLoader, Components } from './component-loader';
+import { componentLoader, Components } from './component-loader.js';
 
 AdminJS.registerAdapter({
   Resource: AdminJSPrisma.Resource,
