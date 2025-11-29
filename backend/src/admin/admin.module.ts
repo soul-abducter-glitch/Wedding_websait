@@ -4,6 +4,7 @@ import AdminJS, { CurrentAdmin } from 'adminjs';
 import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -342,19 +343,20 @@ const buildResources = (
       ) => {
         const nodeEnv = configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
         const adminTmpDir =
-          configService.get<string>('ADMIN_JS_TMP_DIR') ?? path.join(process.cwd(), '.adminjs');
+          configService.get<string>('ADMIN_JS_TMP_DIR') ??
+          path.join(os.tmpdir(), 'adminjs'); // writable in containers
         process.env.ADMIN_JS_TMP_DIR = adminTmpDir;
+        process.env.ADMIN_JS_SKIP_BUNDLE = 'false'; // force bundling
         await fs.mkdir(adminTmpDir, { recursive: true });
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
-        // Force bundling once in production to ensure custom components are available.
-        if (nodeEnv === 'production' && process.env.ADMIN_JS_SKIP_BUNDLE !== 'true') {
+        // Force bundling on every start in production to ensure custom components are available.
+        if (nodeEnv === 'production') {
           await bundle({
             destinationDir: adminTmpDir,
             componentLoader,
           });
-          process.env.ADMIN_JS_SKIP_BUNDLE = 'true';
         }
         const adminJsOptions = {
           rootPath: '/admin',
