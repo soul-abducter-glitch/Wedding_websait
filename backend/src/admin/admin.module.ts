@@ -283,6 +283,12 @@ const buildResources = (
         const uploadModule: any = await import('@adminjs/upload');
         const uploadFeature = uploadModule.default ?? uploadModule;
         const providerConfig = storageService.getProviderConfig();
+
+        AdminJS.registerAdapter({
+          Resource: AdminJSPrisma.Resource,
+          Database: AdminJSPrisma.Database,
+        });
+
         const adminJsOptions = {
           rootPath: '/admin',
           branding: {
