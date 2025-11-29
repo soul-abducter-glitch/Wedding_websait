@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { CurrentAdmin } from 'adminjs';
-import { bundle } from '@adminjs/bundler';
 import fs from 'fs/promises';
 import path from 'path';
 import * as AdminJSPrisma from '@adminjs/prisma';
@@ -357,13 +356,6 @@ const buildResources = (
           componentLoader,
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
-        if (nodeEnv === 'production') {
-          await bundle({
-            destinationDir: adminTmpDir,
-            componentLoader,
-          });
-          process.env.ADMIN_JS_SKIP_BUNDLE = 'true';
-        }
         return {
           adminJsOptions,
           auth: {
