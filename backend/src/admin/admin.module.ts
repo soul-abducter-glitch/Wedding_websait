@@ -312,15 +312,13 @@ const buildResources = (
             withMadeWithLove: false,
           },
           componentLoader,
+          assets: {
+            styles: [],
+            scripts: ['/admin/global.bundle.js', '/admin/components.bundle.js'],
+          },
+          preventBundling: nodeEnv === 'production',
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
-        if (nodeEnv === 'production') {
-          await bundle({
-            destinationDir: adminTmpDir,
-            componentLoader,
-          });
-          process.env.ADMIN_JS_SKIP_BUNDLE = 'true';
-        }
         return {
           adminJsOptions,
           auth: {

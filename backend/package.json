@@ -13,6 +13,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
+    "bundle:admin": "node --loader ts-node/esm scripts/bundle-admin.ts",
     "seed:prod": "node prisma/prod-seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
