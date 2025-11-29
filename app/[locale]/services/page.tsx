@@ -74,6 +74,7 @@ export default async function ServicesPage({ params }: PageProps) {
                     highlighted={pkg.isPopular}
                     badge={pkg.isPopular ? "Popular" : undefined}
                     ctaLabel={ctaLabel}
+                    ctaHref={`/contact?package=${encodeURIComponent(pkg.id)}#contact-form`}
                   />
                 </AnimatedSection>
               ))}

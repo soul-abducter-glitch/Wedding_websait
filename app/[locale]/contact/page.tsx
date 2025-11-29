@@ -47,7 +47,7 @@ export default async function ContactPage({ params }: PageProps) {
                 </Heading>
                 <p className="text-text-muted leading-relaxed">{t("contact.form.subtitle")}</p>
               </div>
-              <div className="mt-6">
+              <div id="contact-form" className="mt-6 scroll-mt-24">
                 <ContactForm />
               </div>
             </AnimatedSection>

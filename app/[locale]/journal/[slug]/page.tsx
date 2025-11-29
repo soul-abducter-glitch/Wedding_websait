@@ -12,6 +12,7 @@ import { AnimatedSection } from "@/components/ui/animated-section"
 import { buildAlternateLinks } from "@/lib/seo"
 import { API_BASE, getJournalPost, getJournalPosts, type ApiPost } from "@/lib/api"
 import { formatDisplayDate } from "@/lib/date"
+import { applyJournalOverride } from "@/lib/journal-overrides"
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> }
 
@@ -26,15 +27,19 @@ const resolveImage = (url?: string | null) => {
   return url
 }
 
-const mapApiPostToJournal = (post: ApiPost, locale: string): JournalPost => ({
-  slug: post.slug,
-  title: post.title,
-  excerpt: post.excerpt ?? "",
-  category: locale === "ru" ? "Журнал" : "Journal",
-  date: post.publishedAt ? formatDisplayDate(post.publishedAt, locale) : "",
-  image: resolveImage(post.coverImageUrl),
-  content: [{ type: "paragraph", text: post.content ?? "" }],
-})
+const mapApiPostToJournal = (post: ApiPost, locale: string): JournalPost =>
+  applyJournalOverride(
+    {
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt ?? "",
+      category: locale === "ru" ? "Журнал" : "Journal",
+      date: post.publishedAt ? formatDisplayDate(post.publishedAt, locale) : "",
+      image: resolveImage(post.coverImageUrl),
+      content: [{ type: "paragraph", text: post.content ?? "" }],
+    },
+    locale,
+  )
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
@@ -109,7 +114,7 @@ export default async function JournalPostPage({ params }: PageProps) {
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error)
     console.warn(`Journal API unavailable, using static translations. Reason: ${reason}`)
-    posts = t.raw("journalPosts") as JournalPost[]
+    posts = (t.raw("journalPosts") as JournalPost[]).map((item) => applyJournalOverride(item, locale))
     post = posts.find((item) => item.slug === slug)
   }
 

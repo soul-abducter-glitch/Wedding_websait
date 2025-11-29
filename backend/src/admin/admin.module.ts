@@ -7,6 +7,7 @@ import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
 import { LeadStatus, Prisma, UserRole } from '@prisma/client';
+import { createRequire } from 'module';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersModule } from '../users/users.module.js';
@@ -20,28 +21,23 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
-const uploadComponentsBase = [
-  'node_modules',
-  '@adminjs',
-  'upload',
-  'build',
-  'features',
-  'upload-file',
-  'components',
-];
+const require = createRequire(import.meta.url);
+// Resolve upload component paths from the package to avoid cwd-related misses in different deploys.
+const resolveUploadComponent = (filename: string) =>
+  require.resolve(`@adminjs/upload/build/features/upload-file/components/${filename}`);
 
 const Components = {
   UploadEditComponent: componentLoader.add(
     'UploadEditComponent',
-    path.join(process.cwd(), ...uploadComponentsBase, 'UploadEditComponent.js'),
+    resolveUploadComponent('UploadEditComponent.js'),
   ),
   UploadListComponent: componentLoader.add(
     'UploadListComponent',
-    path.join(process.cwd(), ...uploadComponentsBase, 'UploadListComponent.js'),
+    resolveUploadComponent('UploadListComponent.js'),
   ),
   UploadShowComponent: componentLoader.add(
     'UploadShowComponent',
-    path.join(process.cwd(), ...uploadComponentsBase, 'UploadShowComponent.js'),
+    resolveUploadComponent('UploadShowComponent.js'),
   ),
 };
 

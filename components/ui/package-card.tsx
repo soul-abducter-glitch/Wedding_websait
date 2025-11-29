@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
+import { Link } from "@/lib/navigation"
 import { CustomButton } from "./custom-button"
 
 interface PackageCardProps {
@@ -13,6 +14,7 @@ interface PackageCardProps {
   highlighted?: boolean
   badge?: string
   ctaLabel?: string
+  ctaHref?: string
   className?: string
 }
 
@@ -24,8 +26,15 @@ export function PackageCard({
   highlighted = false,
   badge,
   ctaLabel = "Choose",
+  ctaHref,
   className,
 }: PackageCardProps) {
+  const button = (
+    <CustomButton variant={highlighted ? "primary" : "secondary"} className="w-full justify-center">
+      {ctaLabel}
+    </CustomButton>
+  )
+
   return (
     <motion.div
       whileHover={{ y: -6, scale: 1.01 }}
@@ -59,9 +68,13 @@ export function PackageCard({
         {price && <p className="text-text-muted text-sm">{price}</p>}
       </div>
 
-      <CustomButton variant={highlighted ? "primary" : "secondary"} className="mt-6 w-full justify-center">
-        {ctaLabel}
-      </CustomButton>
+      {ctaHref ? (
+        <Link href={ctaHref} className="mt-6 block">
+          {button}
+        </Link>
+      ) : (
+        <div className="mt-6">{button}</div>
+      )}
     </motion.div>
   )
 }
