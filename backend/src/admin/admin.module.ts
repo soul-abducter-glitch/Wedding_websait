@@ -14,12 +14,18 @@ import { UsersModule } from '../users/users.module.js';
 import { UsersService } from '../users/users.service.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { StorageProviderConfig, StorageService } from '../storage/storage.service.js';
-import { componentLoader } from './component-loader.js';
+import { componentLoader, Components } from './component-loader.js';
 
 AdminJS.registerAdapter({
   Resource: AdminJSPrisma.Resource,
   Database: AdminJSPrisma.Database,
 });
+
+const uploadComponents = {
+  edit: Components.UploadEdit,
+  list: Components.UploadList,
+  show: Components.UploadShow,
+};
 
 type AdminContext = { currentAdmin?: CurrentAdmin & { role?: string } };
 
@@ -133,14 +139,21 @@ const buildResources = (
         date: { label: 'Дата' },
         shortDescription: { label: 'Короткое описание', type: 'textarea' },
         fullDescription: { type: 'richtext', label: 'Полное описание' },
-        coverImageUrl: {
-          label: 'Обложка (URL)',
-          isVisible: { list: false, filter: false, show: true, edit: true },
-        },
+        coverImageUrl: { label: 'Обложка', isVisible: false },
         isFeatured: { label: 'В избранном' },
+        coverImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
+        },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'weddings/cover',
+        provider,
+      }),
+    ],
   };
 
   const weddingImageResource = {
@@ -151,9 +164,10 @@ const buildResources = (
       sort: { direction: 'asc', sortBy: 'sortOrder' },
       properties: {
         weddingStoryId: { position: 1, label: 'История' },
-        imageUrl: {
-          isVisible: { list: false, filter: false, show: true, edit: true },
-          label: 'Изображение',
+        imageUrl: { isVisible: false, label: 'Изображение' },
+        imageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
         },
         alt: { label: 'ALT текст' },
         sortOrder: { label: 'Порядок' },
@@ -166,7 +180,13 @@ const buildResources = (
         delete: { isAccessible: superAdminOnly },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'imageUrl',
+        folder: 'weddings/gallery',
+        provider,
+      }),
+    ],
   };
 
   const reviewResource = {
@@ -210,9 +230,10 @@ const buildResources = (
         heroTitle: { label: 'Хиро: заголовок' },
         heroSubtitle: { label: 'Хиро: подзаголовок' },
         heroStatsLine: { label: 'Хиро: статистика' },
-        aboutImageUrl: {
-          isVisible: { list: false, filter: false, show: true, edit: true },
-          label: 'Фото об авторе',
+        aboutImageUrl: { isVisible: false, label: 'Фото об авторе' },
+        aboutImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
         },
         aboutImageAlt: { label: 'ALT фото автора' },
         aboutTitle: { label: 'Блок “Обо мне”: заголовок' },
@@ -222,7 +243,13 @@ const buildResources = (
         ctaButtonText: { label: 'CTA: кнопка' },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'aboutImageUrl',
+        folder: 'homepage/about',
+        provider,
+      }),
+    ],
   };
 
   const blogPostResource = {
@@ -244,9 +271,10 @@ const buildResources = (
         title: { label: 'Заголовок' },
         slug: { label: 'Ссылка (slug)' },
         excerpt: { label: 'Короткое описание', type: 'textarea' },
-        coverImageUrl: {
-          label: 'Обложка (URL)',
-          isVisible: { list: false, filter: false, show: true, edit: true },
+        coverImageUrl: { label: 'Обложка (URL)', isVisible: false },
+        coverImageUrlFile: {
+          components: uploadComponents,
+          isVisible: { list: false, filter: false, show: false, edit: true },
         },
         content: { type: 'richtext', label: 'Текст' },
         isPublished: { label: 'Опубликовано' },
@@ -255,7 +283,13 @@ const buildResources = (
         seoDescription: { label: 'SEO описание', type: 'textarea' },
       },
     },
-    features: [],
+    features: [
+      createUploadFeature(uploadFeatureImpl, {
+        key: 'coverImageUrl',
+        folder: 'blog/covers',
+        provider,
+      }),
+    ],
   };
 
   const leadResource = {
