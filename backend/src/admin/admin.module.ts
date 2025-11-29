@@ -22,11 +22,10 @@ AdminJS.registerAdapter({
 
 const componentLoader = new ComponentLoader();
 const require = createRequire(import.meta.url);
-// Resolve upload component paths without touching package "exports".
-const uploadPkgJsonPath = require.resolve('@adminjs/upload/package.json');
+// Resolve upload component paths via module entry (package.json is not exported).
+const uploadEntryPath = require.resolve('@adminjs/upload');
 const uploadComponentsDir = path.join(
-  path.dirname(uploadPkgJsonPath),
-  'build',
+  path.dirname(uploadEntryPath),
   'features',
   'upload-file',
   'components',
