@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AdminJS, { ComponentLoader, CurrentAdmin } from 'adminjs';
 import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
-import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
 import * as AdminJSPrisma from '@adminjs/prisma';
 import bcrypt from 'bcryptjs';
 import { AdminModule as AdminJsModule } from '@adminjs/nestjs';
@@ -21,15 +22,29 @@ AdminJS.registerAdapter({
 });
 
 const componentLoader = new ComponentLoader();
-const require = createRequire(import.meta.url);
-// Resolve upload component paths via module entry (package.json is not exported).
-const uploadEntryPath = require.resolve('@adminjs/upload');
-const uploadComponentsDir = path.join(
-  path.dirname(uploadEntryPath),
-  'features',
-  'upload-file',
-  'components',
-);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Locate upload components by walking up to the nearest node_modules.
+const resolveUploadComponentsDir = () => {
+  let dir = __dirname;
+  while (true) {
+    const candidate = path.join(
+      dir,
+      'node_modules',
+      '@adminjs',
+      'upload',
+      'build',
+      'features',
+      'upload-file',
+      'components',
+    );
+    if (existsSync(candidate)) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error('Cannot find @adminjs/upload components directory');
+};
+const uploadComponentsDir = resolveUploadComponentsDir();
 const resolveUploadComponent = (filename: string) => path.join(uploadComponentsDir, filename);
 
 const Components = {
