@@ -34,15 +34,11 @@ componentLoader.add("UploadListComponent", path.join(uploadDir, "UploadListCompo
 componentLoader.add("UploadShowComponent", path.join(uploadDir, "UploadShowComponent.js"))
 
 const destinationDir = path.join("public", "admin")
-
 await fs.mkdir(path.join(process.cwd(), destinationDir), { recursive: true })
 
 await bundle({
-  adminJsOptions: {
-    rootPath: "/admin",
-    componentLoader,
-  },
   destinationDir,
+  componentLoader,
 })
 
 console.log(`AdminJS assets bundled to ${destinationDir}`)
