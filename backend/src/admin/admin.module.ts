@@ -22,9 +22,10 @@ AdminJS.registerAdapter({
 
 const componentLoader = new ComponentLoader();
 const require = createRequire(import.meta.url);
-// Resolve upload component paths from the package to avoid cwd-related misses in different deploys.
+// Resolve upload component paths without hitting the package "exports" field.
+const uploadPackageRoot = path.dirname(require.resolve('@adminjs/upload/package.json'));
 const resolveUploadComponent = (filename: string) =>
-  require.resolve(`@adminjs/upload/build/features/upload-file/components/${filename}`);
+  path.join(uploadPackageRoot, 'build', 'features', 'upload-file', 'components', filename);
 
 const Components = {
   UploadEditComponent: componentLoader.add(
