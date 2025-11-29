@@ -361,8 +361,11 @@ const buildResources = (
           resources: buildResources(prismaService, providerConfig, uploadFeature),
         };
         if (nodeEnv === 'production') {
-          const adminJs = new AdminJS(adminJsOptions);
-          await bundle(adminJs);
+          await bundle({
+            destinationDir: adminTmpDir,
+            componentLoader,
+          });
+          process.env.ADMIN_JS_SKIP_BUNDLE = 'true';
         }
         return {
           adminJsOptions,
