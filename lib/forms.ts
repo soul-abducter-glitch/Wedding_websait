@@ -15,24 +15,19 @@ export type ReviewFormData = {
   contact?: string
 }
 
-
 export async function submitContactForm(data: ContactFormData) {
   const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || "http://localhost:4000/api/v1"
 
+  // Align payload with backend ContactDto requirements
   const payload = {
-    name: data.name,
-    date: data.date,
-    messenger: data.preferredContact,
-    contact: data.phone || data.email,
-    details: [
-      data.location ? `Локация: ${data.location}` : null,
-      data.message ? `Сообщение: ${data.message}` : null,
-      data.email ? `Email: ${data.email}` : null,
-      data.phone ? `Телефон: ${data.phone}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n"),
+    name: data.name.trim(),
+    email: data.email.trim(),
+    phone: data.phone.trim(),
+    weddingDate: data.date.trim() || undefined,
+    location: data.location.trim(),
+    message: data.message.trim(),
+    source: data.preferredContact || "contact_form",
   }
 
   const res = await fetch(`${API_BASE}/contact`, {
