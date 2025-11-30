@@ -82,9 +82,16 @@ export function SiteHeader() {
             className="lg:hidden fixed inset-0 z-60 bg-bg-base/95 backdrop-blur overflow-y-auto"
           >
             <Container className="min-h-screen">
-              <div className="flex min-h-screen flex-col pt-20 pb-12">
+              <div className="flex min-h-screen flex-col pt-16 pb-12">
                 <div className="px-4">
-                  <div className="mb-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <Link
+                      href="/"
+                      className="font-display text-xl text-text-main tracking-tight"
+                      onClick={() => setOpen(false)}
+                    >
+                      {t("brand")}
+                    </Link>
                     <LanguageSwitcher />
                   </div>
                   <nav className="flex flex-col gap-3 text-base">
