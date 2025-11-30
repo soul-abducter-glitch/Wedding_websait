@@ -22,6 +22,7 @@ type HeroProps = {
   secondaryHref: string
   background: string
   alt: string
+  priority?: boolean
 }
 
 export function Hero({
@@ -36,6 +37,7 @@ export function Hero({
   secondaryHref,
   background,
   alt,
+  priority = false,
 }: HeroProps) {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
@@ -47,7 +49,14 @@ export function Hero({
       className="relative min-h-screen -mt-[80px] flex items-center justify-center overflow-hidden pt-[80px] pb-24"
     >
       <motion.div className="absolute inset-0 z-0" style={{ y }}>
-        <Image src={background} alt={alt} fill priority className="object-cover" />
+        <Image
+          src={background}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="100vw"
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/60 via-bg-dark/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-transparent" />
       </motion.div>

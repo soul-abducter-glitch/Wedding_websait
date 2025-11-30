@@ -114,6 +114,7 @@ export default async function HomePage({ params }: PageProps) {
         secondaryHref="/portfolio"
         background="/elegant-wedding-couple-walking.jpg"
         alt={hero.imageAlt}
+        priority
       />
 
       <Section background="base">
@@ -190,7 +191,13 @@ export default async function HomePage({ params }: PageProps) {
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
             <AnimatedSection>
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
-                <Image src={aboutImageUrl} alt={aboutImageAlt} fill className="object-cover" />
+                <Image
+                  src={aboutImageUrl}
+                  alt={aboutImageAlt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                />
               </div>
             </AnimatedSection>
             <AnimatedSection delay={0.12} className="space-y-4">

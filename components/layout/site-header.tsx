@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Link } from "@/lib/navigation"
+import { useEffect, useState } from "react"
+import { Link, usePathname } from "@/lib/navigation"
 import { useTranslations } from "next-intl"
 import { Menu, X } from "lucide-react"
 import { Container } from "@/components/ui/container"
@@ -15,6 +15,21 @@ export function SiteHeader() {
   const navItems = t.raw("navigation.items") as NavItem[]
   const contactCta = t("navigation.contactCta")
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = open ? "hidden" : original || ""
+    return () => {
+      document.body.style.overflow = original
+    }
+  }, [open])
+
+  // Close menu on route change
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-bg-base/90 backdrop-blur transition-shadow shadow-sm">
@@ -64,7 +79,7 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden fixed inset-0 z-40 bg-bg-base/95 backdrop-blur"
+            className="lg:hidden fixed inset-0 z-60 bg-bg-base/95 backdrop-blur"
           >
             <Container className="h-full">
               <div className="flex h-full flex-col pt-24">
