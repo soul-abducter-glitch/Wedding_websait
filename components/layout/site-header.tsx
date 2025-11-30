@@ -79,18 +79,20 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden fixed inset-0 z-60 bg-bg-base/95 backdrop-blur"
+            className="lg:hidden fixed inset-0 z-60 bg-bg-base/95 backdrop-blur overflow-y-auto"
           >
-            <Container className="h-full">
-              <div className="flex h-full flex-col pt-24">
+            <Container className="min-h-screen">
+              <div className="flex min-h-screen flex-col pt-20 pb-12">
                 <div className="px-4">
-                  <LanguageSwitcher />
-                  <nav className="mt-8 flex flex-col gap-4 text-base">
+                  <div className="mb-6">
+                    <LanguageSwitcher />
+                  </div>
+                  <nav className="flex flex-col gap-3 text-base">
                     {navItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="block rounded-sm px-4 py-3 text-text-muted transition-colors hover:text-text-main hover:bg-bg-alt"
+                        className="block rounded-sm px-4 py-2.5 text-text-muted transition-colors hover:text-text-main hover:bg-bg-alt"
                         onClick={() => setOpen(false)}
                       >
                         {item.label}
