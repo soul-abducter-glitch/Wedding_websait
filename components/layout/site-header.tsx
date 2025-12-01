@@ -79,43 +79,39 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden fixed inset-0 z-60 bg-bg-base/95 backdrop-blur overflow-y-auto"
+            className="lg:hidden fixed inset-0 z-60 bg-bg-base overflow-y-auto"
           >
-            <Container className="min-h-screen">
-              <div className="flex min-h-screen flex-col pt-16 pb-12">
-                <div className="px-4">
-                  <div className="flex items-center justify-between mb-6">
-                    <Link
-                      href="/"
-                      className="font-display text-xl text-text-main tracking-tight"
-                      onClick={() => setOpen(false)}
-                    >
-                      {t("brand")}
-                    </Link>
-                    <LanguageSwitcher />
-                  </div>
-                  <nav className="flex flex-col gap-3 text-base">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="block rounded-sm px-4 py-2.5 text-text-muted transition-colors hover:text-text-main hover:bg-bg-alt"
-                        onClick={() => setOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </nav>
+            <div className="min-h-screen px-4 py-10 flex flex-col gap-8">
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/"
+                  className="font-display text-xl text-text-main tracking-tight"
+                  onClick={() => setOpen(false)}
+                >
+                  {t("brand")}
+                </Link>
+                <LanguageSwitcher />
+              </div>
+              <nav className="flex flex-col gap-2 text-base text-text-main">
+                {navItems.map((item) => (
                   <Link
-                    href="/contact"
-                    className="mt-8 inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-border-subtle px-4 py-3 text-sm tracking-wide transition-colors hover:bg-bg-alt"
+                    key={item.href}
+                    href={item.href}
+                    className="block rounded-sm px-3 py-2 transition-colors hover:bg-bg-alt"
                     onClick={() => setOpen(false)}
                   >
-                    {contactCta}
+                    {item.label}
                   </Link>
-                </div>
-              </div>
-            </Container>
+                ))}
+              </nav>
+              <Link
+                href="/contact"
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-border-subtle px-4 py-3 text-sm tracking-wide transition-colors hover:bg-bg-alt"
+                onClick={() => setOpen(false)}
+              >
+                {contactCta}
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
