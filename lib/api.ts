@@ -94,45 +94,45 @@ export type ApiPostsResponse = {
   offset: number;
 };
 
-export async function getProjects(lang: string, params?: { limit?: number; offset?: number }) {
-  const qs = new URLSearchParams();
-  if (lang) qs.set('lang', lang);
-  if (params?.limit) qs.set('limit', String(params.limit));
-  if (params?.offset) qs.set('offset', String(params.offset));
+export async function getProjects(lang: string, params?: { limit?: number; offset?: number }) { 
+  const qs = new URLSearchParams(); 
+  if (lang) qs.set('lang', lang); 
+  if (params?.limit) qs.set('limit', String(params.limit)); 
+  if (params?.offset) qs.set('offset', String(params.offset)); 
+ 
+  const query = qs.toString();  
+  const suffix = query ? `?${query}` : '';  
+  return fetchJson<ApiProjectsResponse>(`/projects${suffix}`, { revalidate: 600 });  
+} 
+ 
+export async function getProject(slug: string, lang: string) { 
+  const qs = new URLSearchParams(); 
+  if (lang) qs.set('lang', lang); 
+  const query = qs.toString(); 
+  const suffix = query ? `?${query}` : ''; 
+  return fetchJson<ApiProject>(`/projects/${slug}${suffix}`, { revalidate: 600 }); 
+} 
+ 
+export async function getServices(lang: string) { 
+  const qs = lang ? `?lang=${lang}` : ''; 
+  return fetchJson<ApiService[]>(`/services${qs}`, { revalidate: 600 }); 
+} 
+ 
+export async function getReviews(lang: string) {  
+  const qs = lang ? `?lang=${lang}` : '';  
+  return fetchJson<ApiReview[]>(`/reviews${qs}`, { revalidate: 600 });  
+}  
 
-  const query = qs.toString();
-  const suffix = query ? `?${query}` : '';
-  return fetchJson<ApiProjectsResponse>(`/projects${suffix}`, { cache: 'no-store' });
-}
+export async function getJournalPosts(params?: { limit?: number; offset?: number }) { 
+  const qs = new URLSearchParams(); 
+  if (params?.limit) qs.set('limit', String(params.limit)); 
+  if (params?.offset) qs.set('offset', String(params.offset)); 
+  const suffix = qs.size ? `?${qs.toString()}` : ''; 
+  return fetchJson<ApiPostsResponse>(`/posts${suffix}`, { revalidate: 600 }); 
+} 
 
-export async function getProject(slug: string, lang: string) {
-  const qs = new URLSearchParams();
-  if (lang) qs.set('lang', lang);
-  const query = qs.toString();
-  const suffix = query ? `?${query}` : '';
-  return fetchJson<ApiProject>(`/projects/${slug}${suffix}`, { cache: 'no-store' });
-}
-
-export async function getServices(lang: string) {
-  const qs = lang ? `?lang=${lang}` : '';
-  return fetchJson<ApiService[]>(`/services${qs}`, { revalidate: 300 });
-}
-
-export async function getReviews(lang: string) {
-  const qs = lang ? `?lang=${lang}` : '';
-  return fetchJson<ApiReview[]>(`/reviews${qs}`, { cache: 'no-store' });
-}
-
-export async function getJournalPosts(params?: { limit?: number; offset?: number }) {
-  const qs = new URLSearchParams();
-  if (params?.limit) qs.set('limit', String(params.limit));
-  if (params?.offset) qs.set('offset', String(params.offset));
-  const suffix = qs.size ? `?${qs.toString()}` : '';
-  return fetchJson<ApiPostsResponse>(`/posts${suffix}`, { cache: 'no-store' });
-}
-
-export async function getJournalPost(slug: string) {
-  return fetchJson<ApiPost>(`/posts/${slug}`, { cache: 'no-store' });
-}
-
-export { API_BASE, fetchJson };
+export async function getJournalPost(slug: string) { 
+  return fetchJson<ApiPost>(`/posts/${slug}`, { revalidate: 600 }); 
+} 
+ 
+export { API_BASE, fetchJson }; 

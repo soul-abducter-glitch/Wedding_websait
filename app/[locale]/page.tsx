@@ -15,7 +15,7 @@ import { TestimonialCard } from "@/components/ui/testimonial-card"
 import { AnimatedSection } from "@/components/ui/animated-section"
 import { Hero } from "@/components/sections/hero"
 
-export const revalidate = 0
+export const revalidate = 600
 
 const API_ORIGIN = API_BASE.replace(/\/api.*$/, "")
 const FALLBACK_ABOUT_IMAGE = "/female-photographer.png"
@@ -55,7 +55,7 @@ export default async function HomePage({ params }: PageProps) {
   }
 
   const homepageResponse = await fetch(`${API_BASE}/homepage`, {
-    cache: "no-store",
+    next: { revalidate: 600 },
   }).catch(() => null)
   const homepageData =
     homepageResponse && homepageResponse.ok ? await homepageResponse.json() : null
