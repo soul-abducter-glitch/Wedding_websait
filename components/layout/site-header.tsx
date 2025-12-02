@@ -40,15 +40,20 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8 text-sm">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex min-h-[44px] items-center whitespace-nowrap border-b border-transparent text-text-muted transition-colors hover:border-text-main hover:text-text-main"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex min-h-[44px] items-center whitespace-nowrap border-b transition-colors hover:border-text-main hover:text-text-main ${
+                    isActive ? "border-text-main text-text-main" : "border-transparent text-text-muted"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
@@ -75,11 +80,11 @@ export function SiteHeader() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-0 z-[100] h-screen w-full bg-[#FAF8F4] flex flex-col justify-center items-center overflow-hidden"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] h-screen w-full bg-[#FAF8F4] flex flex-col overflow-hidden"
           >
             <button
               onClick={() => setOpen(false)}
@@ -89,20 +94,37 @@ export function SiteHeader() {
               <X className="h-6 w-6" strokeWidth={1.5} />
             </button>
 
-            <nav className="flex flex-col items-center gap-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="font-display text-4xl leading-tight text-[#181818] transition-colors hover:text-gray-600"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <div className="flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-16">
+              <nav className="flex flex-col items-center gap-4 text-center">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`font-display text-3xl leading-tight transition-colors hover:text-gray-600 ${
+                        isActive ? "italic text-[#181818]" : "text-[#181818]/80"
+                      }`}
+                      onClick={() => setOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </nav>
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-sm uppercase tracking-widest">
+              <div className="h-6" />
+
+              <Link
+                href="/contact"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#181818] px-6 py-3 text-base font-medium tracking-wide text-[#FAF8F4] transition-colors hover:bg-gray-800"
+                onClick={() => setOpen(false)}
+              >
+                {contactCta}
+              </Link>
+            </div>
+
+            <div className="mt-auto pb-10 pt-4 flex justify-center text-sm uppercase tracking-widest">
               <LanguageSwitcher />
             </div>
           </motion.div>
