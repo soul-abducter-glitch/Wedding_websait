@@ -13,7 +13,7 @@ import { Container } from "@/components/ui/container"
 type HeroProps = {
   eyebrow: string
   heading: string
-  subheading: string
+  subheading?: string
   description?: string
   stats: string
   primaryCta: string
@@ -75,13 +75,15 @@ export function Hero({
               {heading}
             </Heading>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.16 }}
-          >
-            <LeadText className="text-white/90 text-pretty mb-2 text-sm sm:text-base">{subheading}</LeadText>
-          </motion.div>
+          {subheading ? (
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.16 }}
+            >
+              <LeadText className="text-white/90 text-pretty mb-2 text-sm sm:text-base">{subheading}</LeadText>
+            </motion.div>
+          ) : null}
           {description && (
             <motion.p
               className="text-sm sm:text-base text-white/80 leading-relaxed max-w-3xl mb-2"

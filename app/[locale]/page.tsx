@@ -47,7 +47,8 @@ export default async function HomePage({ params }: PageProps) {
   const hero = t.raw("home.hero") as {
     eyebrow: string
     heading: string
-    subheading: string
+    subheading?: string
+    description: string
     stats: string
     primaryCta: string
     secondaryCta: string

@@ -401,7 +401,6 @@ const en = {
     hero: {
       eyebrow: "Wedding photographer • modern editorial style",
       heading: "Timeless aesthetics of your feelings. Wedding photography as a legacy.",
-      subheading: "Photographs you will revisit for years to come.",
       description:
         "Living emotions instead of staged moments. Natural frames where you recognize your relaxed selves.",
       stats: "10+ years • 100+ weddings • Moscow & destinations",
