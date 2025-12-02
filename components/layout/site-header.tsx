@@ -79,7 +79,7 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-0 z-[100] bg-[#FAF8F4] flex flex-col justify-center items-center"
+            className="fixed inset-0 z-[100] h-screen w-full bg-[#FAF8F4] flex flex-col justify-center items-center overflow-hidden"
           >
             <button
               onClick={() => setOpen(false)}
