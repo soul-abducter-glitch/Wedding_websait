@@ -79,39 +79,29 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden fixed inset-0 z-60 bg-bg-base overflow-y-auto"
+            className="fixed inset-0 z-[9999] h-screen w-screen bg-[#FAF8F4] flex flex-col items-center justify-center"
           >
-            <div className="flex min-h-screen flex-col px-4 py-8 gap-6">
-              <div className="flex items-center justify-between">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-6 right-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle"
+              aria-label={t("navigation.closeMenuLabel")}
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <nav className="flex flex-col items-center gap-8 text-4xl font-serif">
+              <LanguageSwitcher />
+              {navItems.map((item) => (
                 <Link
-                  href="/"
-                  className="font-display text-xl text-text-main tracking-tight"
+                  key={item.href}
+                  href={item.href}
+                  className="text-text-main transition-colors hover:text-text-muted"
                   onClick={() => setOpen(false)}
                 >
-                  {t("brand")}
+                  {item.label}
                 </Link>
-                <LanguageSwitcher />
-              </div>
-              <nav className="flex flex-col gap-2 text-base text-text-main">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="block rounded-sm px-3 py-2 transition-colors hover:bg-bg-alt"
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-              <Link
-                href="/contact"
-                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-border-subtle px-4 py-3 text-sm tracking-wide transition-colors hover:bg-bg-alt"
-                onClick={() => setOpen(false)}
-              >
-                {contactCta}
-              </Link>
-            </div>
+              ))}
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>
