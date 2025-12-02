@@ -79,9 +79,9 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="lg:hidden fixed inset-0 z-60 bg-bg-base/98 overflow-hidden"
+            className="lg:hidden fixed inset-0 z-60 bg-bg-base overflow-y-auto"
           >
-            <div className="flex h-full flex-col px-4 py-8 gap-6">
+            <div className="flex min-h-screen flex-col px-4 py-8 gap-6">
               <div className="flex items-center justify-between">
                 <Link
                   href="/"
@@ -92,7 +92,7 @@ export function SiteHeader() {
                 </Link>
                 <LanguageSwitcher />
               </div>
-              <nav className="flex-1 min-h-0 flex flex-col justify-start gap-2 text-base text-text-main overflow-y-auto">
+              <nav className="flex flex-col gap-2 text-base text-text-main">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
