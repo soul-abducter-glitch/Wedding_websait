@@ -79,29 +79,32 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-0 z-[9999] h-screen w-screen bg-[#FAF8F4] flex flex-col items-center justify-center"
+            className="fixed inset-0 z-[100] bg-[#FAF8F4] flex flex-col justify-center items-center"
           >
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-6 right-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-subtle"
+              className="absolute top-6 right-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-transparent"
               aria-label={t("navigation.closeMenuLabel")}
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" strokeWidth={1.5} />
             </button>
 
-            <nav className="flex flex-col items-center gap-8 font-serif text-4xl">
-              <LanguageSwitcher />
+            <nav className="flex flex-col items-center gap-6">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="font-display text-3xl text-gray-900 transition-colors hover:text-gray-600"
+                  className="font-display text-4xl leading-tight text-[#181818] transition-colors hover:text-gray-600"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
+
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-sm uppercase tracking-widest">
+              <LanguageSwitcher />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
