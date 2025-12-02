@@ -364,6 +364,7 @@ const en = {
   },
   navigation: {
     menuLabel: "Menu",
+    closeMenuLabel: "Close menu",
     items: [
       { href: "/portfolio", label: "Portfolio" },
       { href: "/services", label: "Services" },

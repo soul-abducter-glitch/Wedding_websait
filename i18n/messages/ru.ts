@@ -382,6 +382,7 @@ const ru = {
   },
   navigation: {
     menuLabel: "Меню",
+    closeMenuLabel: "Закрыть меню",
     items: [
       { href: "/portfolio", label: "Портфолио" },
       { href: "/services", label: "Услуги" },

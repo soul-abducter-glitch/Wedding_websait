@@ -89,13 +89,13 @@ export function SiteHeader() {
               <X className="h-5 w-5" />
             </button>
 
-            <nav className="flex flex-col items-center gap-8 text-4xl font-serif">
+            <nav className="flex flex-col items-center gap-8 font-serif text-4xl">
               <LanguageSwitcher />
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-text-main transition-colors hover:text-text-muted"
+                  className="font-display text-3xl text-gray-900 transition-colors hover:text-gray-600"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
